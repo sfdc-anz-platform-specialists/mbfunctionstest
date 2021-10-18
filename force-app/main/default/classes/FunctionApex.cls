@@ -3,7 +3,7 @@ public with sharing class FunctionApex {
         System.debug('Now Invoking Mikes myfunction');
 
         functions.Function myFunction = functions.Function.get('MyFunctionsProject.myfunction');
-        functions.FunctionInvocation invocation = myFunction.invoke('{"name":"MyAccount"}');
+        functions.FunctionInvocation invocation = myFunction.invoke('{"name":"MyAccount","accountNumber":"1234","type":"Customer - Direct"}');
         String jsonResponse = invocation.getResponse();
 
         System.debug('Response from Mikes myfunction ' + jsonResponse);
