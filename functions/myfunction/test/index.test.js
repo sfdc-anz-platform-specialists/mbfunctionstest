@@ -1,68 +1,97 @@
-import { expect } from 'chai';
-import createSandbox from 'sinon/lib/sinon/create-sandbox.js';
+import { expect } from "chai";
+import createSandbox from "sinon/lib/sinon/create-sandbox.js";
 
-import execute from '../index.js'
+import execute from "../index.js";
 
 /**
- * Myfunction unit tests.
+ * dataapiqueryjs Function unit tests.
  */
+describe("Unit Tests", () => {
+  let sandbox;
+  let mockContext;
+  let mockLogger;
 
-describe('Unit Tests', () => {
+  beforeEach(() => {
+    mockContext = {
+      org: {
+        dataApi: { query: () => {} }
+      },
+      logger: { info: () => {} }
+    };
 
-    let sandbox;
-    let mockContext;
-    let mockLogger;
-    let accounts;
+    mockLogger = mockContext.logger;
+    sandbox = createSandbox();
 
-    beforeEach(() => {
-        mockContext = {
-            org: {
-                dataApi: { query: () => {} }
-            },
-            logger: { info: () => {} }
-        };
+    sandbox.stub(mockContext.org.dataApi, "query");
+    sandbox.stub(mockLogger, "info");
+  });
 
-        mockLogger = mockContext.logger;
-        sandbox = createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
 
-        sandbox.stub(mockContext.org.dataApi, "query");
-        sandbox.stub(mockLogger, "info");
-
-        accounts = {
-            'totalSize': 3,
-            'done': true,
-            'records': [
-                {
-                    'type': 'Account',
-                    'fields': { 'Name': 'Global Media' }
+  it("Invoke dataapiqueryjs Function with keyword", async () => {
+    // Mock Accounts query
+    const accounts = {
+      totalSize: 1,
+      done: true,
+      records: [
+        {
+          attributes: {
+            type: "Account",
+            url: "/services/data/v53.0/sobjects/Account/0018A00000bmUOkQAM"
+          },
+          Id: "0018A00000bmUOkQAM",
+          Name: "Burlington Textiles Corp of America",
+          Contacts: {
+            totalSize: 1,
+            done: true,
+            records: [
+              {
+                attributes: {
+                  type: "Contact",
+                  url: "/services/data/v53.0/sobjects/Contact/0038A00000YJqSvQAL"
                 },
-                {
-                    'type': 'Account',
-                    'fields': { 'Name': 'Acme' }
-                },
-                {
-                    'type': 'Account',
-                    'fields': { 'Name': 'salesforce.com' }
-                }
+                Name: "Jack Rogers",
+                Email: "jrogers@burlington.com"
+              }
             ]
-        };
+          }
+        }
+      ]
+    };
 
-        mockContext.org.dataApi.query.callsFake(() => {
-            return Promise.resolve(accounts);
-        });
+    mockContext.org.dataApi.query.callsFake(() => {
+      return Promise.resolve(accounts);
     });
 
-    afterEach(() => {
-        sandbox.restore();
-    });
+    // Invoke function
+    const results = await execute(
+      { data: { keyword: "america" } },
+      mockContext,
+      mockLogger
+    );
 
-    it('Invoke Myfunction', async () => {
-        const results = await execute({ data: {} }, mockContext, mockLogger);
+    // Validate
+    expect(mockContext.org.dataApi.query.callCount).to.be.eql(1);
+    expect(mockLogger.info.callCount).to.be.eql(2);
+    expect(results).to.be.not.undefined;
+    expect(results).has.property("totalSize");
+    expect(results.totalSize).to.be.eql(accounts.totalSize);
+  });
 
-        expect(mockContext.org.dataApi.query.callCount).to.be.eql(1);
-        expect(mockLogger.info.callCount).to.be.eql(2);
-        expect(results).to.be.not.undefined;
-        expect(results).has.property('totalSize');
-        expect(results.totalSize).to.be.eql(accounts.totalSize);
-    });
+  it("Invoke dataapiqueryjs Function without keyword", async () => {
+    try {
+      // Invoke function without keyword
+      await execute({ data: {} }, mockContext, mockLogger);
+    } catch (err) {
+      expect(mockContext.org.dataApi.query.callCount).to.be.eql(0);
+      expect(mockLogger.info.callCount).to.be.eql(1);
+      expect(err).to.be.not.null;
+      expect(err.message).to.match(/specify a keyword/);
+      return;
+    }
+
+    expect(false, "function must throw").to.be.ok;
+  });
 });
