@@ -22,8 +22,9 @@ export default async function (event, context, logger) {
     throw new Error("Please specify a keyword to search accounts");
   }
 
+
   const results = await context.org.dataApi.query(
-    `SELECT Id, Name, (SELECT Name, Email FROM Contacts) FROM Account WHERE Name LIKE '%${keyword}%'`
+    `SELECT Id, Name FROM Account`
   );
   logger.info(JSON.stringify(results));
   return results;
