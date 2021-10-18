@@ -2,7 +2,7 @@
 
 export default async function (event, context, logger) {
   logger.info(
-    `Invoking salesforcesdkjs Function with payload ${JSON.stringify(
+    `Invoking Mikes salesforcesdkjs Function with payload ${JSON.stringify(
       event.data || {}
     )}`
   );
