@@ -1,5 +1,11 @@
+import { readFileSync } from "fs";
+const sampleData = JSON.parse(
+  readFileSync(new URL("./data/sample-data.json", import.meta.url))
+);
+
 /**
- * Returns accounts and its contacts by keyword.
+ * From a large JSON payload calculates the distance between a supplied
+ * point of origin cordinate and the data, sorts it, and returns the nearest x results.
  *
  * The exported method is the entry point for your code when the function is invoked.
  *
@@ -11,22 +17,68 @@
  *                 to a given execution of a function.
  */
 export default async function (event, context, logger) {
+  const data = event.data || {};
   logger.info(
-    `Invoking datapiqueryjs Function with payload ${JSON.stringify(
-      event.data || {}
-    )}`
+    `Invoking processlargedatajs Function with payload ${JSON.stringify(data)}`
   );
 
-  const keyword = event.data.keyword;
-  if (!keyword || typeof keyword !== "string") {
-    throw new Error("Please specify a keyword to search accounts");
+  // validate the payload params
+  if (!data.latitude || !data.longitude) {
+    throw new Error(`Please provide latitude and longitude`);
   }
 
+  // Sets 5 if length is not provided, also accepts length = 0
+  const length = data.length ?? 5;
 
-  const results = await context.org.dataApi.query(
-    `SELECT Id, Name FROM Account WHERE Name LIKE '%${keyword}%'`
-  );
-  logger.info('XXXXXX');
-  logger.info(JSON.stringify(results));
-  return results;
+  // Iterate through the schools in the file and calculate the distance using the distance function below
+  const schools = sampleData.schools
+    .map((school) => {
+      return Object.assign({}, school, {
+        distance: distance(
+          data.latitude,
+          data.longitude,
+          school.latitude,
+          school.longitude
+        )
+      });
+    })
+    // Sort schools by distance distance from the provided location
+    .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+
+  // Assign the nearest x schools to the results constant based on the length property provided in the payload
+  const results = schools.slice(0, length);
+
+  // return the results
+  return { schools: results };
+}
+
+/**
+ * Calculate distance between two geographical points
+ *
+ * @param {string} latitudeSt:  represents the latitude of the origin point
+ * @param {string} longitudeSt:  represents the longitude of the origin point
+ * @param {string} latitudeSch:  represents the latitude of the school
+ * @param {string} longitudeSch:  represents the longitude of the school
+ * ....
+ * @returns {number} distance between point a and b
+ */
+function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
+  if (latitudeSt == latitudeSch && longitudeSt == longitudeSch) {
+    return 0;
+  } else {
+    const radLatitudeSf = (Math.PI * latitudeSt) / 180;
+    const radLatitudeSch = (Math.PI * latitudeSch) / 180;
+    const theta = longitudeSt - longitudeSch;
+    const radTheta = (Math.PI * theta) / 180;
+    let dist =
+      Math.sin(radLatitudeSf) * Math.sin(radLatitudeSch) +
+      Math.cos(radLatitudeSf) * Math.cos(radLatitudeSch) * Math.cos(radTheta);
+    if (dist > 1) {
+      dist = 1;
+    }
+    dist = Math.acos(dist);
+    dist = (dist * 180) / Math.PI;
+    dist = dist * 60 * 1.1515;
+    return dist;
+  }
 }

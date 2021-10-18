@@ -1,10 +1,11 @@
 {
-  "name": "dataapiquery-js-function",
+  "name": "processlargedata-js-function",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "author": "salesforce.com",
-  "description": "Returns accounts and its contacts by keyword.",
+  "type": "module",
+  "description": "From a large JSON payload calculates the distance between a supplied point of origin cordinate and the data, sorts it, and returns the nearest x results.",
+  "license": "CC0-1.0",
   "main": "index.js",
   "repository": {
     "type": "git"

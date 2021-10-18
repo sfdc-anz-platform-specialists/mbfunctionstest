@@ -6,7 +6,7 @@ public with sharing class FunctionApex {
         //functions.FunctionInvocation invocation = myFunction.invoke('{"name":"MyAccount","accountNumber":"6666","type":"Customer - Direct"}');
        
         functions.Function myFunction = functions.Function.get('MyFunctionsProject.myfunction');
-        functions.FunctionInvocation invocation = myFunction.invoke('{"keyword":"Account"}');
+        functions.FunctionInvocation invocation = myFunction.invoke('{"keyword":"Sample"}');
        
        
         String jsonResponse = invocation.getResponse();
