@@ -131,7 +131,11 @@ stream.on('end', function() {
 //   logger.info(']XXXXX')
 
 
-  const pdf = {
+  
+
+});
+
+const pdf = {
   type: "Attachment",
   fields: { 
     ParentId:logId,
@@ -153,9 +157,6 @@ try {
   logger.error(errorMessage);
   throw new Error(errorMessage);
 }
-
-});
-
   
   return the results
   return { schools: results };
