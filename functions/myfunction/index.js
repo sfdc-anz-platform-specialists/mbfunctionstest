@@ -37,6 +37,8 @@ export default async function (event, context, logger) {
   // Sets 5 if length is not provided, also accepts length = 0
   const length = data.length ?? 5;
 
+const datasetsize=sampleData.schools.length;
+
   // Iterate through the schools in the file and calculate the distance using the distance function below
   const schools = sampleData.schools
     .map((school) => {
@@ -59,7 +61,7 @@ export default async function (event, context, logger) {
     type: "FunctionRunLog__c",
     fields: {
       
-      LogText__c: randomName,
+      LogText__c: `Random Name=${randomName} Returned ${length} schools from dataset of ${datasetsize}`,
       LogDateTime__c:`${Date.now()}`
       
     }
