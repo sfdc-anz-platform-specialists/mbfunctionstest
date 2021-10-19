@@ -20,10 +20,12 @@ const sampleData = JSON.parse(
  */
 export default async function (event, context, logger) {
 
+  const data = event.data || {};
+
   logger.info(
     `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
-  const data = event.data || {};
+ 
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
