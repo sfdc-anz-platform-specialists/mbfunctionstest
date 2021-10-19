@@ -144,7 +144,7 @@ try {
   throw new Error(errorMessage);
 }
   
-  return the results
+  
   return { schools: results };
 }
 
