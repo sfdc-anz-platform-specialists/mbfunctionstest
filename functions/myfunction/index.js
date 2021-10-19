@@ -26,7 +26,7 @@ export default async function (event, context, logger) {
   let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
   logger.info(
-    `Invoking processlargedatajs Function with payload ${JSON.stringify(data)}`
+    `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
   // validate the payload params
