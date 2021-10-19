@@ -124,40 +124,40 @@ stream.on('data',function(chunk) {
 finalString+= chunk;
  })
 
-// stream.on('end', function() {
+stream.on('end', function() {
 //   // the stream is at its end, so push the resulting base64 string to the response
 // logger.info('XXXXX[')
 //   logger.info(finalString);
 //   logger.info(']XXXXX')
 
 
-//   const pdf = {
-//   type: "Attachment",
-//   fields: { 
-//     ParentId:logId,
-//     ContentType: "application/pdf",
-//     Name:"doc.pdf",
-//     Body: finalString,
-//     Description:"test"
+  const pdf = {
+  type: "Attachment",
+  fields: { 
+    ParentId:logId,
+    ContentType: "application/pdf",
+    Name:"doc.pdf",
+    Body: finalString,
+    Description:"test"
        
-//   }
-// };
+  }
+};
 
-// try {
-//   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-//   const { id: recordId } = await context.org.dataApi.create(pdf);
+try {
+  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+  const { id: recordId } = await context.org.dataApi.create(pdf);
 
-// } catch (err) {
-//   // Catch any DML errors and pass the throw an error with the message
-//   const errorMessage = `Failed to insert pdf record. Root Cause: ${err.message}`;
-//   logger.error(errorMessage);
-//   throw new Error(errorMessage);
-// }
+} catch (err) {
+  // Catch any DML errors and pass the throw an error with the message
+  const errorMessage = `Failed to insert pdf record. Root Cause: ${err.message}`;
+  logger.error(errorMessage);
+  throw new Error(errorMessage);
+}
 
-// });
+});
 
   
-  // return the results
+  return the results
   return { schools: results };
 }
 
