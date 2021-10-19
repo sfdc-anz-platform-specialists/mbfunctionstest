@@ -1,7 +1,11 @@
-import { readFileSync } from "fs";
+import { readFileSync} from "fs";
+
+import { createWriteStream} from "fs";
+
 
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
+import {PDFDocument} from "pdfkit";
 
 
 const sampleData = JSON.parse(
@@ -9,6 +13,10 @@ const sampleData = JSON.parse(
 );
 
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
+
+
+const doc= new PDFDocument();
+
 
 
 /**
@@ -106,6 +114,33 @@ const datasetsize=sampleData.schools.length;
     throw new Error(errorMessage);
   }
 
+
+  doc.pipe(createWriteStream('SampleDocument.pdf'));
+  doc.text("My Sample PDF Document");
+  doc.end();
+
+
+  const pdf = {
+    type: "Attachment",
+    fields: { 
+      ParentId:logId,
+      ContentType: "application/jpeg",
+      Name:"doc.pdf",
+      Body:doc
+         
+    }
+  };
+
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(pdf);
+
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 
 
 
