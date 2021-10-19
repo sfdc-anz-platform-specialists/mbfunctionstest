@@ -1,4 +1,9 @@
 import { readFileSync } from "fs";
+
+import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
+
+
+
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
@@ -18,6 +23,8 @@ const sampleData = JSON.parse(
  */
 export default async function (event, context, logger) {
   const data = event.data || {};
+  let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
+
   logger.info(
     `Invoking processlargedatajs Function with payload ${JSON.stringify(data)}`
   );
@@ -47,6 +54,27 @@ export default async function (event, context, logger) {
 
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
+
+  const functionrunlog = {
+    type: "FunctionRunLog__c",
+    fields: {
+      
+      LogText__c: randomName,
+      LogDateTime__c:`${Date.now()}`
+      
+    }
+  };
+
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(functionrunlog);
+
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 
   // return the results
   return { schools: results };
