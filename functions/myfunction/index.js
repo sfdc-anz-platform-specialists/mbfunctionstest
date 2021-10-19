@@ -113,7 +113,6 @@ const datasetsize=sampleData.schools.length;
     throw new Error(errorMessage);
   }
 
-
   doc.pipe(createWriteStream('SampleDocument.pdf'));
   doc.text("My Sample PDF Document");
   doc.end();
@@ -125,7 +124,7 @@ const datasetsize=sampleData.schools.length;
       ParentId:logId,
       ContentType: "application/pdf",
       Name:"doc.pdf",
-      Body:doc
+      Body:doc.toString('base64')
          
     }
   };
@@ -136,7 +135,7 @@ const datasetsize=sampleData.schools.length;
 
   } catch (err) {
     // Catch any DML errors and pass the throw an error with the message
-    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
+    const errorMessage = `Failed to insert pdf record. Root Cause: ${err.message}`;
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }
