@@ -35,8 +35,10 @@ export default async function (event, context, logger) {
   let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
   logger.info(
-    `New Version - Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
+    `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
+
+  logger.info('Storing details in SFDC object functionrunlog__c');
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
