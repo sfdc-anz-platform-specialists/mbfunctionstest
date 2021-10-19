@@ -73,7 +73,7 @@ export default class ProcessLargeDataFunction extends NavigationMixin(
               PostalCode: location.zip
             },
             description: location.description,
-            title: `${location.name} (${distance}mi)`,
+            title: `${location.name} (${distance}km)`,
             value: location.website
           };
           this.mapMarkers.push(marker);

@@ -106,7 +106,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
     }
     dist = Math.acos(dist);
     dist = (dist * 180) / Math.PI;
-    dist = dist * 60 * 1.1515;
+    dist = dist * 60 * 1.1515 * 1.609344 ;
     return dist;
   }
 }
