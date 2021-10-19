@@ -126,8 +126,12 @@ finalString+= chunk;
 
 stream.on('end', function() {
   // the stream is at its end, so push the resulting base64 string to the response
+logger.info('XXXXX[')
+  logger.info(finalString);
+  logger.info(']XXXXX')
 
- const pdf = {
+
+  const pdf = {
   type: "Attachment",
   fields: { 
     ParentId:logId,
@@ -149,18 +153,6 @@ try {
   logger.error(errorMessage);
   throw new Error(errorMessage);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 });
 
