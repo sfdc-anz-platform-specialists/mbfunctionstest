@@ -1,9 +1,16 @@
 import { readFileSync} from "fs";
+import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
+//import PDFDocument from 'pdfkit';
+
+//import {Base64Encode} from 'base64-stream';
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
+
+const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
+
 
 /**
  * From a large JSON payload calculates the distance between a supplied
@@ -19,13 +26,17 @@ const sampleData = JSON.parse(
  *                 to a given execution of a function.
  */
 export default async function (event, context, logger) {
+  
 
+  var logId;
+ 
+  
   const data = event.data || {};
+  let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
   logger.info(
-    `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
+    `New Version - Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
- 
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
@@ -33,7 +44,9 @@ export default async function (event, context, logger) {
   }
 
   // Sets 5 if length is not provided, also accepts length = 0
-const length = data.length ?? 5;
+  const length = data.length ?? 5;
+
+const datasetsize=sampleData.schools.length;
 
   // Iterate through the schools in the file and calculate the distance using the distance function below
   const schools = sampleData.schools
@@ -52,6 +65,48 @@ const length = data.length ?? 5;
 
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
+
+  
+    const functionrunlog = {
+    type: "FunctionRunLog__c",
+    fields: { 
+      LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
+      LogDateTime__c:`${Date.now()}`    
+    }
+  };
+
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(functionrunlog);
+    logId=recordId;
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  const attach = {
+    type: "Attachment",
+    fields: { 
+      ParentId:logId,
+      ContentType: "image/jpeg",
+      Name:"logo.jpg",
+      Body:imageData
+         
+    }
+  };
+
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(attach);
+
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 
   
   return { schools: results };

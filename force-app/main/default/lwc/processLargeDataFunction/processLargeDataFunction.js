@@ -115,7 +115,8 @@ export default class ProcessLargeDataFunction extends NavigationMixin(
   }
 
   get functionTitle() {
-    return `LWC Example`;
+    return `
+    Process Large Data Example`;
   }
 
   get mapLoaded() {
