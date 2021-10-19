@@ -120,20 +120,6 @@ var stream=doc.pipe(new Base64Encode());
 doc.text("My Sample PDF Document");
 doc.end();
 
-stream.on('data',function(chunk) {
-finalString+= chunk;
- })
-
-stream.on('end', function() {
-//   // the stream is at its end, so push the resulting base64 string to the response
-// logger.info('XXXXX[')
-//   logger.info(finalString);
-//   logger.info(']XXXXX')
-
-
-  
-
-});
 
 const pdf = {
   type: "Attachment",
