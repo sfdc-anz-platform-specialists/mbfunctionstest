@@ -23,6 +23,7 @@ export default async function (event, context, logger) {
   logger.info(
     `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
+  const data = event.data || {};
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
@@ -31,8 +32,6 @@ export default async function (event, context, logger) {
 
   // Sets 5 if length is not provided, also accepts length = 0
 const length = data.length ?? 5;
-
-const datasetsize=sampleData.schools.length;
 
   // Iterate through the schools in the file and calculate the distance using the distance function below
   const schools = sampleData.schools
