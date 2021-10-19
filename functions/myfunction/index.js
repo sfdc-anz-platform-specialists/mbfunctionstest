@@ -133,7 +133,7 @@ stream.on('end', function() {
     ParentId:logId,
     ContentType: "application/pdf",
     Name:"doc.pdf",
-    Body: finalString
+    Body: finalString,
     Description:"test"
        
   }
