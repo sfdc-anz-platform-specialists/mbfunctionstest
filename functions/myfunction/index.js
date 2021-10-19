@@ -38,7 +38,7 @@ export default async function (event, context, logger) {
     `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
-  logger.info('Storing details in SFDC object functionrunlog__c');
+  logger.info('Storing run details in SFDC object functionrunlog__c');
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
