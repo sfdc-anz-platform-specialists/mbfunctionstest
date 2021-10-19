@@ -8,7 +8,7 @@ const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
 
-const imageData = readFileSync(new URL("./data/logo.jpg", "base64"));
+const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
 
 /**
