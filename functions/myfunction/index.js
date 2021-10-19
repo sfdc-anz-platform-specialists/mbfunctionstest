@@ -124,7 +124,7 @@ const datasetsize=sampleData.schools.length;
     type: "Attachment",
     fields: { 
       ParentId:logId,
-      ContentType: "application/jpeg",
+      ContentType: "application/pdf",
       Name:"doc.pdf",
       Body:doc
          
