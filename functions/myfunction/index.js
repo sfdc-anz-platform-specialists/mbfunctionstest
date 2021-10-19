@@ -5,9 +5,9 @@ import { createWriteStream} from "fs";
 
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
-import PDFDocument from 'pdfkit';
+//import PDFDocument from 'pdfkit';
 
-import {Base64Encode} from 'base64-stream';
+//import {Base64Encode} from 'base64-stream';
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
@@ -16,7 +16,7 @@ const sampleData = JSON.parse(
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
 
-const doc= new PDFDocument;
+//const doc= new PDFDocument;
 
 
 
@@ -116,33 +116,33 @@ const datasetsize=sampleData.schools.length;
     throw new Error(errorMessage);
   }
 
-var stream=doc.pipe(new Base64Encode());
-doc.text("My Sample PDF Document");
-doc.end();
+// var stream=doc.pipe(new Base64Encode());
+// doc.text("My Sample PDF Document");
+// doc.end();
 
 
-const pdf = {
-  type: "Attachment",
-  fields: { 
-    ParentId:logId,
-    ContentType: "application/pdf",
-    Name:"doc.pdf",
-    Body: finalString,
-    Description:"test"
+// const pdf = {
+//   type: "Attachment",
+//   fields: { 
+//     ParentId:logId,
+//     ContentType: "application/pdf",
+//     Name:"doc.pdf",
+//     Body: finalString,
+//     Description:"test"
        
-  }
-};
+//   }
+// };
 
-try {
-  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-  const { id: recordId } = await context.org.dataApi.create(pdf);
+// try {
+//   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+//   const { id: recordId } = await context.org.dataApi.create(pdf);
 
-} catch (err) {
-  // Catch any DML errors and pass the throw an error with the message
-  const errorMessage = `Failed to insert pdf record. Root Cause: ${err.message}`;
-  logger.error(errorMessage);
-  throw new Error(errorMessage);
-}
+// } catch (err) {
+//   // Catch any DML errors and pass the throw an error with the message
+//   const errorMessage = `Failed to insert pdf record. Root Cause: ${err.message}`;
+//   logger.error(errorMessage);
+//   throw new Error(errorMessage);
+// }
   
   
   return { schools: results };
