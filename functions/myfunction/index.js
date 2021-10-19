@@ -5,8 +5,7 @@ import { createWriteStream} from "fs";
 
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
-import {PDFDocument} from "pdfkit";
-
+import * as PDFDocument from 'pdfkit';
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
