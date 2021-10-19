@@ -61,7 +61,7 @@ const datasetsize=sampleData.schools.length;
     type: "FunctionRunLog__c",
     fields: {
       
-      LogText__c: `Random Name=${randomName} Returned ${length} schools from dataset of ${datasetsize}`,
+      LogText__c: `Runname=${randomName}. Returned ${length} schools from the sample dataset of ${datasetsize} records`,
       LogDateTime__c:`${Date.now()}`
       
     }
