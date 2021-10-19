@@ -116,9 +116,9 @@ const datasetsize=sampleData.schools.length;
     throw new Error(errorMessage);
   }
 
-//   var stream=doc.pipe(new Base64Encode());
-//   doc.text("My Sample PDF Document");
-//   doc.end();
+var stream=doc.pipe(new Base64Encode());
+doc.text("My Sample PDF Document");
+doc.end();
 
 // stream.on('data',function(chunk) {
 // finalString+= chunk;
