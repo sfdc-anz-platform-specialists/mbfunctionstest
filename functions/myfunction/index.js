@@ -61,7 +61,7 @@ const datasetsize=sampleData.schools.length;
     type: "FunctionRunLog__c",
     fields: {
       
-      LogText__c: `Runname=${randomName}. Returned ${length} schools from the sample dataset of ${datasetsize} records`,
+      LogText__c: `Node.js function returned random string: ${randomName}. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
       LogDateTime__c:`${Date.now()}`
       
     }
