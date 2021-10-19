@@ -7,7 +7,7 @@ import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-
 
 import PDFDocument from 'pdfkit';
 
-//import {Base64Encode} from 'base64-stream';
+import {Base64Encode} from 'base64-stream';
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
