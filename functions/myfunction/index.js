@@ -30,7 +30,7 @@ export default async function (event, context, logger) {
   const data = event.data || {};
   
   logger.info(
-    `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
+    `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
 
