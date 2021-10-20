@@ -161,12 +161,12 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
 
 
    async function createPdf(text){
-    const doc = new PDFDocument()
-    doc.fontSize(10).text(text, 50, 50)
-    doc.end()
+    const doc = new PDFDocument();
+    doc.fontSize(10).text(text, 50, 50);
+    doc.end();
 
-    const data = await getStream.buffer(doc)
-    let b64 = Buffer.from(data).toString('base64')
-    return b64
+    const data = await getStream.buffer(doc);
+    let b64 = Buffer.from(data).toString('base64');
+    return b64;
   }
 

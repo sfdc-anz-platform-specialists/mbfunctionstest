@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "base64-stream": "^1.0.0",
+    "get-stream": "^6.0.1",
     "pdfkit": "^0.12.3",
     "unique-names-generator": "^4.6.0"
   }
