@@ -11,12 +11,11 @@ const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
 
+//image attachment
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
+//pdf attachment
 const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
-
-
-const doc= new PDFDocument;
 
 /**
  * From a large JSON payload calculates the distance between a supplied
@@ -35,13 +34,14 @@ export default async function (event, context, logger) {
   
 
   const data = event.data || {};
+  
+  //just for fun generate a random string
   let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
   logger.info(
     `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
-  logger.info('Storing run details in SFDC object functionrunlog__c');
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
@@ -74,7 +74,7 @@ const datasetsize=sampleData.schools.length;
 
 
 
-
+logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
@@ -102,7 +102,7 @@ const pdfId = uow.registerCreate({
   fields: { 
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
-    Name:"Slides.pdf",
+    Name:"Datasheet.pdf",
     Body:pdfData
       
   }
