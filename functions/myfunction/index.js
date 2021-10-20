@@ -13,6 +13,8 @@ const sampleData = JSON.parse(
 
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
+const pdfData = readFileSync('./data/Slides.pdf', {encoding:'base64'});
+
 
 const doc= new PDFDocument;
 
@@ -72,26 +74,7 @@ const datasetsize=sampleData.schools.length;
 
 
 
-var tmpString = ''; // contains the base64 string
-var finalString = ''; // contains the base64 string
 
-
-var stream = doc.pipe(new Base64Encode());
-doc.text("My Sample PDF Document");
-doc.end();
-
-stream.on('data', function(chunk) {
-    tmpString += chunk;
-    logger.info(`tmpString is ${tmpString}`);
-});
-
-stream.on('end', function() {
-  // the stream is at its end, so push the resulting base64 string to the response
-finalString=tmpString;
-logger.info(`finalString is ${finalString}`);
-
-
-});
 
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
@@ -119,9 +102,9 @@ const pdfId = uow.registerCreate({
   fields: { 
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
-    Name:"doc.pdf",
-    Body:finalString.length
-       
+    Name:"Slides.pdf",
+    Body:pdfData
+      
   }
 });
 
