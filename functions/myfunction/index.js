@@ -67,9 +67,9 @@ const datasetsize=sampleData.schools.length;
 
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
-
+var pdfData='';
 createPdf('x')
-  .then((data) => { console.log(data)});
+  .then((data) => { console.log(data); pdfData=data});
   
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
@@ -101,7 +101,7 @@ const pdfId = uow.registerCreate({
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
     Name:"Datasheet.pdf",
-    Body:createPdf('xx')
+    Body:pdfData
       
   }
 });
