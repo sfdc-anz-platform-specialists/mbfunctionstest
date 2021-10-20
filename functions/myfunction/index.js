@@ -4,19 +4,6 @@ import * as PDFDocument from 'pdfkit';
 
 import getStream from 'get-stream';
 
-
-const pdf = {
-  createPdf: async (text: string) => {
-    const doc = new PDFDocument()
-    doc.fontSize(10).text(text, 50, 50)
-    doc.end()
-
-    const data = await getStream.buffer(doc)
-    let b64 = Buffer.from(data).toString('base64')
-    return b64
-  }
-}
-
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
