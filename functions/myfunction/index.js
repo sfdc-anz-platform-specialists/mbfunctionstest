@@ -112,7 +112,7 @@ const cvId = uow.registerCreate({
     Title:'My Doc',
     VersionData : pdfData,
     PathOnClient :'SamplePDF.pdf',
-    Origin:'H'
+    Origin:'S'
       
   }
 });
