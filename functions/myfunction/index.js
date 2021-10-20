@@ -1,12 +1,6 @@
 import { readFileSync} from "fs";
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
-//import PDFDocument from 'pdfkit';
-import PDFDocument from 'pdfkit';
-
-//import {Base64Encode} from 'base64-stream';
-import {Base64Encode} from 'base64-stream';
-
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
@@ -70,8 +64,6 @@ const datasetsize=sampleData.schools.length;
 
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
-
-
 
 
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
