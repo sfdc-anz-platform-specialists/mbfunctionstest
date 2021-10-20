@@ -11,7 +11,6 @@ const sampleData = JSON.parse(
 
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
-
 /**
  * From a large JSON payload calculates the distance between a supplied
  * point of origin cordinate and the data, sorts it, and returns the nearest x results.
@@ -68,47 +67,58 @@ const datasetsize=sampleData.schools.length;
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
 
+
+
+// Create a Unit nof Work to store Fucntion Log and Attachment
+const uow = context.org.dataApi.newUnitOfWork();
+
+const functionRunlogId = uow.registerCreate({
+  type: "FunctionRunLog__c",
+  fields: { 
+    LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
+    LogDateTime__c:`${Date.now()}`    
+  }
+});
+
+const attachmentId = uow.registerCreate({
+  type: "Attachment",
+  fields: { 
+    ParentId:functionRunlogId,
+    ContentType: "image/jpeg",
+    Name:"logo.jpg",
+    Body:imageData
+       
+  }
+});
+
+
+
+try {
+  // Commit the Unit of Work with all the previous registered operations
+  const response = await context.org.dataApi.commitUnitOfWork(uow);
+  // Construct the result by getting the Id from the successful inserts
+  const result = {
+    functionRunLogId: response.get(functionRunlogId).id,
+    attachmentId: response.get(attachmentId).id
+    
+  };
+  logger.info(
+    `Invoking returned result ${JSON.stringify(result)}`
+  );
+} catch (err) {
+  const errorMessage = `Failed to insert record. Root Cause : ${err.message}`;
+  logger.error(errorMessage);
+  throw new Error(errorMessage);
+}
+
+
+
+
+//
   
-    const functionrunlog = {
-    type: "FunctionRunLog__c",
-    fields: { 
-      LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
-      LogDateTime__c:`${Date.now()}`    
-    }
-  };
+  
 
-  try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-    const { id: recordId } = await context.org.dataApi.create(functionrunlog);
-    logId=recordId;
-  } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
-    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
-    logger.error(errorMessage);
-    throw new Error(errorMessage);
-  }
-
-  const attach = {
-    type: "Attachment",
-    fields: { 
-      ParentId:logId,
-      ContentType: "image/jpeg",
-      Name:"logo.jpg",
-      Body:imageData
-         
-    }
-  };
-
-  try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-    const { id: recordId } = await context.org.dataApi.create(attach);
-
-  } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
-    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
-    logger.error(errorMessage);
-    throw new Error(errorMessage);
-  }
+  
 
   
   return { schools: results };
