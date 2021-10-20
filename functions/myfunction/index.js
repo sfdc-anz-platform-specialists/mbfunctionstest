@@ -65,9 +65,11 @@ const datasetsize=sampleData.schools.length;
 
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
+  logger.info('Before pdfdoc');
 
-var pdfdoc=createPdf('x');
 
+
+logger.info('After pdfdoc');
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
 // Create a Unit nof Work to store Fucntion Log and Attachment
@@ -100,7 +102,7 @@ const pdfId = uow.registerCreate({
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
     Name:"Datasheet.pdf",
-    Body:pdfdoc
+    Body:createPdf('xx')
       
   }
 });
@@ -161,12 +163,14 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
 
 
    async function createPdf(text){
+    
     const doc = new PDFDocument;
     doc.fontSize(10).text(text, 50, 50);
     doc.end();
 
     const data = await getStream.buffer(doc);
     let b64 = Buffer.from(data).toString('base64');
+
     return b64;
   }
 
