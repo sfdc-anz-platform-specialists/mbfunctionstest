@@ -68,9 +68,6 @@ const datasetsize=sampleData.schools.length;
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
 
-logger.info(`PDF======${createPdf('x')}`);
-
-
 createPdf('x')
   .then((data) => { console.log(data)});
   
