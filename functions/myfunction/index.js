@@ -1,11 +1,20 @@
 import { readFileSync} from "fs";
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
+//import PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
+
+//import {Base64Encode} from 'base64-stream';
+import {Base64Encode} from 'base64-stream';
+
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
 
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
+
+
+const doc= new PDFDocument;
 
 /**
  * From a large JSON payload calculates the distance between a supplied
@@ -22,6 +31,7 @@ const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
  */
 export default async function (event, context, logger) {
   
+
   const data = event.data || {};
   let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
@@ -60,6 +70,27 @@ const datasetsize=sampleData.schools.length;
   const results = schools.slice(0, length);
 
 
+
+
+var tmpString = ''; // contains the base64 string
+var finalString = ''; // contains the base64 string
+
+var stream = doc.pipe(new Base64Encode());
+doc.text("My Sample PDF Document");
+doc.end();
+
+stream.on('data', function(chunk) {
+    tmpString += chunk;
+    logger.info(`tmpString is ${tmpString}`);
+});
+
+stream.on('end', function() {
+  // the stream is at its end, so push the resulting base64 string to the response
+finalString=tmpString;
+logger.info(`finalString is ${finalString}`);
+
+});
+
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
 
@@ -78,6 +109,16 @@ const attachmentId = uow.registerCreate({
     ContentType: "image/jpeg",
     Name:"logo.jpg",
     Body:imageData
+       
+  }
+});
+const pdfId = uow.registerCreate({
+  type: "Attachment",
+  fields: { 
+    ParentId:functionRunlogId,
+    ContentType: "application/pdf",
+    Name:"doc.pdf",
+    Body:finalString
        
   }
 });
