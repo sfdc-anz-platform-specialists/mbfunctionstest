@@ -13,7 +13,7 @@ const sampleData = JSON.parse(
 
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
-const pdfData = readFileSync('./data/Slides.pdf', {encoding:'base64'});
+const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
 
 
 const doc= new PDFDocument;
