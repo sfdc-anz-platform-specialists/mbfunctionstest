@@ -74,7 +74,7 @@ const datasetsize=sampleData.schools.length;
 
 var tmpString = ''; // contains the base64 string
 var finalString = ''; // contains the base64 string
-var bodyLength='';
+
 
 var stream = doc.pipe(new Base64Encode());
 doc.text("My Sample PDF Document");
@@ -89,7 +89,7 @@ stream.on('end', function() {
   // the stream is at its end, so push the resulting base64 string to the response
 finalString=tmpString;
 logger.info(`finalString is ${finalString}`);
-bodyLength=finalString.length;
+
 
 });
 
@@ -120,7 +120,7 @@ const pdfId = uow.registerCreate({
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
     Name:"doc.pdf",
-    Body:finalString
+    Body:finalString.length
        
   }
 });
