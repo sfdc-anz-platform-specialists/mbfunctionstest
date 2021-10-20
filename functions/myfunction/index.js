@@ -1,5 +1,21 @@
 import { readFileSync} from "fs";
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
+import * as PDFDocument from 'pdfkit';
+
+import getStream from 'get-stream';
+
+
+const pdf = {
+  createPdf: async (text: string) => {
+    const doc = new PDFDocument()
+    doc.fontSize(10).text(text, 50, 50)
+    doc.end()
+
+    const data = await getStream.buffer(doc)
+    let b64 = Buffer.from(data).toString('base64')
+    return b64
+  }
+}
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
@@ -9,7 +25,7 @@ const sampleData = JSON.parse(
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
 //pdf attachment
-const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
+//const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
 
 /**
  * From a large JSON payload calculates the distance between a supplied
@@ -63,6 +79,7 @@ const datasetsize=sampleData.schools.length;
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
 
+  var pdfdoc=createPdf('x');
 
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
@@ -96,7 +113,7 @@ const pdfId = uow.registerCreate({
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
     Name:"Datasheet.pdf",
-    Body:pdfData
+    Body:pdfdoc
       
   }
 });
@@ -154,3 +171,15 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
     return dist;
   }
 }
+
+
+   async function createPdf(text){
+    const doc = new PDFDocument()
+    doc.fontSize(10).text(text, 50, 50)
+    doc.end()
+
+    const data = await getStream.buffer(doc)
+    let b64 = Buffer.from(data).toString('base64')
+    return b64
+  }
+
