@@ -64,13 +64,11 @@ const datasetsize=sampleData.schools.length;
 
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
-  logger.info('Before pdfdoc');
 
-
-
-logger.info('After pdfdoc');
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
+
+logger.info(`PDF======${createPdf('x')}`);
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
 
