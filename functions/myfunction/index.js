@@ -29,14 +29,12 @@ export default async function (event, context, logger) {
 
   const data = event.data || {};
   
-  //just for fun generate a random string
-  let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
-
   logger.info(
     `Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
 
+  
   // validate the payload params
   if (!data.latitude || !data.longitude) {
     throw new Error(`Please provide latitude and longitude`);
@@ -70,6 +68,9 @@ logger.info('Storing run details and attachments in SFDC objects using Unit-of-W
 
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
+
+//just for fun generate a random string
+let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
 const functionRunlogId = uow.registerCreate({
   type: "FunctionRunLog__c",
