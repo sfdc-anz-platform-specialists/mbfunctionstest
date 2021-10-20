@@ -120,8 +120,7 @@ const pdfId = uow.registerCreate({
     ParentId:functionRunlogId,
     ContentType: "application/pdf",
     Name:"doc.pdf",
-    Body:finalString,
-    BodyLength: bodyLength
+    Body:finalString
        
   }
 });
