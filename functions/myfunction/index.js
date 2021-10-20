@@ -1,7 +1,6 @@
 import { readFileSync} from "fs";
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
-import * as PDFDocument from 'pdfkit';
-
+import PDFDocument from 'pdfkit';
 import getStream from 'get-stream';
 
 const sampleData = JSON.parse(
