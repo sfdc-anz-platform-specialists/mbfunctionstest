@@ -1,21 +1,17 @@
 import { readFileSync} from "fs";
-
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
-
-//import PDFDocument from 'pdfkit';
-
-//import {Base64Encode} from 'base64-stream';
+import PDFDocument from 'pdfkit';
+import getStream from 'get-stream';
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
 
+//image attachment
 const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 
-
-//const doc= new PDFDocument;
-
-
+//pdf attachment
+//const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
 
 /**
  * From a large JSON payload calculates the distance between a supplied
@@ -33,16 +29,14 @@ const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
 export default async function (event, context, logger) {
   
 
-  var logId;
-  var finalString='';
-  
   const data = event.data || {};
-  let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
-
+  
   logger.info(
-    `New Version - Invoking MyFunctions-myfunction with payload ${JSON.stringify(data)}`
+    `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
+
+  
   // validate the payload params
   if (!data.latitude || !data.longitude) {
     throw new Error(`Please provide latitude and longitude`);
@@ -71,77 +65,67 @@ const datasetsize=sampleData.schools.length;
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
 
+logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
+
+var pdfData='';
+createPdf('x')
+  .then((data) => { console.log(data); pdfData='data:application/pdf;base64,'+data});
   
-    const functionrunlog = {
-    type: "FunctionRunLog__c",
-    fields: { 
-      LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
-      LogDateTime__c:`${Date.now()}`    
-    }
-  };
+// Create a Unit nof Work to store Fucntion Log and Attachment
+const uow = context.org.dataApi.newUnitOfWork();
 
-  try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-    const { id: recordId } = await context.org.dataApi.create(functionrunlog);
-    logId=recordId;
-  } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
-    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
-    logger.error(errorMessage);
-    throw new Error(errorMessage);
+//just for fun generate a random string
+let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
+
+const functionRunlogId = uow.registerCreate({
+  type: "FunctionRunLog__c",
+  fields: { 
+    LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
+    LogDateTime__c:`${Date.now()}`    
   }
+});
 
-  const attach = {
-    type: "Attachment",
-    fields: { 
-      ParentId:logId,
-      ContentType: "image/jpeg",
-      Name:"logo.jpg",
-      Body:imageData
-         
-    }
-  };
-
-  try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-    const { id: recordId } = await context.org.dataApi.create(attach);
-
-  } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
-    const errorMessage = `Failed to insert record. Root Cause: ${err.message}`;
-    logger.error(errorMessage);
-    throw new Error(errorMessage);
-  }
-
-// var stream=doc.pipe(new Base64Encode());
-// doc.text("My Sample PDF Document");
-// doc.end();
-
-
-// const pdf = {
-//   type: "Attachment",
-//   fields: { 
-//     ParentId:logId,
-//     ContentType: "application/pdf",
-//     Name:"doc.pdf",
-//     Body: finalString,
-//     Description:"test"
+const attachmentId = uow.registerCreate({
+  type: "Attachment",
+  fields: { 
+    ParentId:functionRunlogId,
+    ContentType: "image/jpeg",
+    Name:"logo.jpg",
+    Body:imageData
        
-//   }
-// };
+  }
+});
+const pdfId = uow.registerCreate({
+  type: "Attachment",
+  fields: { 
+    ParentId:functionRunlogId,
+    ContentType: "application/pdf",
+    Name:"Datasheet.pdf",
+    Body:pdfData
+      
+  }
+});
 
-// try {
-//   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-//   const { id: recordId } = await context.org.dataApi.create(pdf);
+  // Commit the Unit of Work with all the previous registered operations
+  try {
+  const response = await context.org.dataApi.commitUnitOfWork(uow);
 
-// } catch (err) {
-//   // Catch any DML errors and pass the throw an error with the message
-//   const errorMessage = `Failed to insert pdf record. Root Cause: ${err.message}`;
-//   logger.error(errorMessage);
-//   throw new Error(errorMessage);
-// }
-  
-  
+  // Construct the result by getting the Id from the successful inserts
+  const result = {
+    functionRunLogId: response.get(functionRunlogId).id,
+    attachmentId: response.get(attachmentId).id,
+    pdfId:response.get(pdfId).id
+    
+  };
+  logger.info(
+    `Invoking returned result ${JSON.stringify(result)}`
+  );
+} catch (err) {
+  const errorMessage = `Failed to insert record. Root Cause : ${err.message}`;
+  logger.error(errorMessage);
+  throw new Error(errorMessage);
+}
+ 
   return { schools: results };
 }
 
@@ -175,3 +159,17 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
     return dist;
   }
 }
+
+
+   async function createPdf(text){
+    
+    const doc = new PDFDocument;
+    doc.fontSize(10).text(text, 50, 50);
+    doc.end();
+
+    const data = await getStream.buffer(doc);
+    let b64 = Buffer.from(data).toString('base64');
+
+    return b64;
+  }
+

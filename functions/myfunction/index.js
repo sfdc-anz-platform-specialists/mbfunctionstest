@@ -95,16 +95,38 @@ const attachmentId = uow.registerCreate({
        
   }
 });
-const pdfId = uow.registerCreate({
-  type: "Attachment",
+// const pdfId = uow.registerCreate({
+//   type: "Attachment",
+//   fields: { 
+//     ParentId:functionRunlogId,
+//     ContentType: "application/pdf",
+//     Name:"Datasheet.pdf",
+//     Body:pdfData
+      
+//   }
+// });
+
+const cvId = uow.registerCreate({
+  type: "ContentVersion",
   fields: { 
-    ParentId:functionRunlogId,
-    ContentType: "application/pdf",
-    Name:"Datasheet.pdf",
-    Body:pdfData
+    Title:'My Doc',
+    VersionData : pdfData,
+    PathOnClient :'SamplePDF.pdf',
+    Origin:'H'
       
   }
 });
+
+const clId = uow.registerCreate({
+  type: "ContentLink",
+  fields: { 
+    LinkedEntityId:functionRunlogId,
+    ContentDocumentId : cvId,
+    ShareType : 'V'   
+  }
+});
+
+
 
   // Commit the Unit of Work with all the previous registered operations
   try {
@@ -114,7 +136,9 @@ const pdfId = uow.registerCreate({
   const result = {
     functionRunLogId: response.get(functionRunlogId).id,
     attachmentId: response.get(attachmentId).id,
-    pdfId:response.get(pdfId).id
+    cvId:response.get(cvId).id,
+    clId:response.get(clId).id
+
     
   };
   logger.info(
