@@ -117,14 +117,14 @@ const cvId = uow.registerCreate({
   }
 });
 
-const clId = uow.registerCreate({
-  type: "ContentLink",
-  fields: { 
-    LinkedEntityId:functionRunlogId,
-    ContentDocumentId : cvId,
-    ShareType : 'V'   
-  }
-});
+// const clId = uow.registerCreate({
+//   type: "ContentLink",
+//   fields: { 
+//     LinkedEntityId:functionRunlogId,
+//     ContentDocumentId : cvId,
+//     ShareType : 'V'   
+//   }
+// });
 
 
 
@@ -137,7 +137,7 @@ const clId = uow.registerCreate({
     functionRunLogId: response.get(functionRunlogId).id,
     attachmentId: response.get(attachmentId).id,
     cvId:response.get(cvId).id,
-    clId:response.get(clId).id
+    //clId:response.get(clId).id
 
     
   };
