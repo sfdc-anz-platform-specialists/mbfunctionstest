@@ -109,10 +109,12 @@ const attachmentId = uow.registerCreate({
 const cvId = uow.registerCreate({
   type: "ContentVersion",
   fields: { 
-    Title:'My Doc',
+    Title:"FunctionDoc",
     VersionData : pdfData,
-    PathOnClient :'SamplePDF.pdf',
-    ContentLocation:'S'
+    PathOnClient :"FunctionDoc.pdf",
+    ContentLocation:"S",
+    OwnerId: "005550000096cDTAAY"
+    
       
   }
 });
