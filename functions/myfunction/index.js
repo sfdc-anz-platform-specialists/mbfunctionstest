@@ -67,15 +67,18 @@ const datasetsize=sampleData.schools.length;
 
 logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
 
+
+//just for fun generate a random string
+let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
+
+//generate a PDF
 var pdfData='';
-createPdf('x')
+
+createPdf(randomName)
   .then((data) => { console.log(data); pdfData=data});
   
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
-
-//just for fun generate a random string
-let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
 
 const functionRunlogId = uow.registerCreate({
   type: "FunctionRunLog__c",
@@ -95,50 +98,19 @@ const attachmentId = uow.registerCreate({
        
   }
 });
-// const pdfId = uow.registerCreate({
-//   type: "Attachment",
-//   fields: { 
-//     ParentId:functionRunlogId,
-//     ContentType: "application/pdf",
-//     Name:"Datasheet.pdf",
-//     Body:pdfData
-      
-//   }
-// });
 
-const cvId = uow.registerCreate({
-  type: "ContentVersion",
-  fields: { 
-    Title:"FunctionDoc",
-    VersionData : pdfData,
-    PathOnClient :"FunctionDoc.pdf",
-    ContentLocation:"S",
-    FirstPublishLocationId:functionRunlogId
-    
-      
-  }
-});
 
-// const clId = uow.registerCreate({
-//   type: "ContentLink",
-//   fields: { 
-//     LinkedEntityId:functionRunlogId,
-//     ContentDocumentId : cvId,
-//     ShareType : 'V'   
-//   }
-// });
-
-var pid;
+var frlid;
 
   // Commit the Unit of Work with all the previous registered operations
   try {
   const response = await context.org.dataApi.commitUnitOfWork(uow);
-  pid=response.get(functionRunlogId).id;
+  frlid=response.get(functionRunlogId).id;
   // Construct the result by getting the Id from the successful inserts
   const result = {
     functionRunLogId: response.get(functionRunlogId).id,
-    attachmentId: response.get(attachmentId).id,
-    cvId:response.get(cvId).id,
+    attachmentId: response.get(attachmentId).id
+    //cvId:response.get(cvId).id,
     //clId:response.get(clId).id
 
     
@@ -152,41 +124,29 @@ var pid;
   throw new Error(errorMessage);
 }
  
-// logger.info('Storing Content Version ');
+logger.info('Storing Content Version ');
+const cv = {
+  type: "ContentVersion",
+  fields: {
+         VersionData : pdfData,
+         Title: `${randomName}`,
+         PathOnClient :"Function_Generated.pdf",
+         ContentLocation:"S", 
+         FirstPublishLocationId:frlid 
+  }
+};
 
 
-// const cv = {
-//   type: "ContentVersion",
-//   fields: {
-//     Title:"FunctionDoc",
-//          VersionData : pdfData,
-//          PathOnClient :"FunctionDoc.pdf",
-//          ContentLocation:"S", 
-//          FirstPublishLocationId:pid 
-//   }
-// };
-
-
-// try {
-//   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-//   const { id: recordId } = await context.org.dataApi.create(cv);
-//   logger.info(`CV returned ${recordId}`);
-
-
-// } catch (err) {
-//   // Catch any DML errors and pass the throw an error with the message
-//   const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
-//   logger.error(errorMessage);
-//   throw new Error(errorMessage);
-// }
-
-
-
-
-
-
-
-
+try {
+  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+  const { id: recordId } = await context.org.dataApi.create(cv);
+  logger.info(`CV returned ${recordId}`);
+} catch (err) {
+  // Catch any DML errors and pass the throw an error with the message
+  const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+  logger.error(errorMessage);
+  throw new Error(errorMessage);
+}
 
   return { schools: results };
 }
