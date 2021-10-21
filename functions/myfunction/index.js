@@ -128,12 +128,12 @@ const attachmentId = uow.registerCreate({
 //   }
 // });
 
-
+var pid;
 
   // Commit the Unit of Work with all the previous registered operations
   try {
   const response = await context.org.dataApi.commitUnitOfWork(uow);
-
+  pid=response.get(functionRunlogId).id;
   // Construct the result by getting the Id from the successful inserts
   const result = {
     functionRunLogId: response.get(functionRunlogId).id,
@@ -152,6 +152,39 @@ const attachmentId = uow.registerCreate({
   throw new Error(errorMessage);
 }
  
+logger.info('Storing Content Version ');
+
+
+const cv = {
+  type: "ContentVersion",
+  fields: {
+    Title:"FunctionDoc",
+         VersionData : pdfData,
+         PathOnClient :"FunctionDoc.pdf",
+         ContentLocation:"S",      
+  }
+};
+
+
+try {
+  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+  const { id: recordId } = await context.org.dataApi.create(cv);
+
+} catch (err) {
+  // Catch any DML errors and pass the throw an error with the message
+  const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+  logger.error(errorMessage);
+  throw new Error(errorMessage);
+}
+
+
+
+
+
+
+
+
+
   return { schools: results };
 }
 
