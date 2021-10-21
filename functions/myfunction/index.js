@@ -76,7 +76,10 @@ var pdfData='';
 
 createPdf(`You succesfully executed a Salesforce function at ${Date.now()}. Your randomly generated run name is ${randomName}.`)
   .then((data) => { console.log(data); pdfData=data});
-  
+
+
+/*****  Start UOW *****/
+
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
 
@@ -85,17 +88,6 @@ const functionRunlogId = uow.registerCreate({
   fields: { 
     LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
     LogDateTime__c:`${Date.now()}`    
-  }
-});
-
-const attachmentId = uow.registerCreate({
-  type: "Attachment",
-  fields: { 
-    ParentId:functionRunlogId,
-    ContentType: "image/jpeg",
-    Name:"logo.jpg",
-    Body:imageData
-       
   }
 });
 
@@ -109,22 +101,47 @@ var frlid;
   // Construct the result by getting the Id from the successful inserts
   const result = {
     functionRunLogId: response.get(functionRunlogId).id,
-    attachmentId: response.get(attachmentId).id
-    //cvId:response.get(cvId).id,
-    //clId:response.get(clId).id
-
-    
+    //attachmentId: response.get(attachmentId).id
   };
   logger.info(
-    `Invoking returned result ${JSON.stringify(result)}`
+    `UOW returned result: ${JSON.stringify(result)}`
   );
 } catch (err) {
   const errorMessage = `Failed to insert record. Root Cause : ${err.message}`;
   logger.error(errorMessage);
   throw new Error(errorMessage);
 }
- 
-logger.info('Storing Content Version ');
+
+/*****  END UOW *****/
+
+
+/**** START ADDING ATTACHMENTS ******/
+
+// Image 
+logger.info('Storing Image to Content Version ');
+const img = {
+  type: "Attachment",
+  fields: { 
+    ParentId:frlid,
+    ContentType: "image/jpeg",
+    Name:"logo.jpg",
+    Body:imageData       
+  }
+};
+
+try {
+  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+  const { id: recordId } = await context.org.dataApi.create(img);
+  logger.info(`CV returned ${recordId}`);
+} catch (err) {
+  // Catch any DML errors and pass the throw an error with the message
+  const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+  logger.error(errorMessage);
+  throw new Error(errorMessage);
+}
+
+// PDF
+logger.info('Storing PDF to Content Version ');
 const cv = {
   type: "ContentVersion",
   fields: {
@@ -136,7 +153,6 @@ const cv = {
   }
 };
 
-
 try {
   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
   const { id: recordId } = await context.org.dataApi.create(cv);
@@ -147,8 +163,11 @@ try {
   logger.error(errorMessage);
   throw new Error(errorMessage);
 }
+/***** end ADDING ATTACHMENTS ******/
+ 
 
-  return { schools: results };
+  
+return { schools: results };
 }
 
 /**
