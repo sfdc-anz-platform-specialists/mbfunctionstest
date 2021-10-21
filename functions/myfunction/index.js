@@ -216,7 +216,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
   .lineTo(100, 250)
   .lineTo(200, 250)
   .fill('#FF3300');
-doc.fontSize(12).text(text, 50, 50);
+doc.fontSize(14).text(text, 50, 50);
 const lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam in suscipit purus.  Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus nec hendrerit felis. Morbi aliquam facilisis risus eu lacinia. Sed eu leo in turpis fringilla hendrerit. Ut nec accumsan nisl.';
 doc.addPage();
 doc.fontSize(12);
