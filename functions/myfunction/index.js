@@ -106,18 +106,18 @@ const attachmentId = uow.registerCreate({
 //   }
 // });
 
-const cvId = uow.registerCreate({
-  type: "ContentVersion",
-  fields: { 
-    Title:"FunctionDoc",
-    VersionData : pdfData,
-    PathOnClient :"FunctionDoc.pdf",
-    ContentLocation:"S",
-    OwnerId: "005550000096cDTAAY"
+// const cvId = uow.registerCreate({
+//   type: "ContentVersion",
+//   fields: { 
+//     Title:"FunctionDoc",
+//     VersionData : pdfData,
+//     PathOnClient :"FunctionDoc.pdf",
+//     ContentLocation:"S",
+//     OwnerId: "005550000096cDTAAY"
     
       
-  }
-});
+//   }
+// });
 
 // const clId = uow.registerCreate({
 //   type: "ContentLink",
@@ -137,8 +137,8 @@ const cvId = uow.registerCreate({
   // Construct the result by getting the Id from the successful inserts
   const result = {
     functionRunLogId: response.get(functionRunlogId).id,
-    attachmentId: response.get(attachmentId).id,
-    cvId:response.get(cvId).id,
+    attachmentId: response.get(attachmentId).id
+    //cvId:response.get(cvId).id,
     //clId:response.get(clId).id
 
     
