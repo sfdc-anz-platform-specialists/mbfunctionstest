@@ -120,7 +120,7 @@ var frlid;
 // Image 
 logger.info('Storing Image to Content Version ');
 const img = {
-  type: "Attachment",
+  type: "ContentVersion",
   fields: { 
     VersionData : imageData,
     Title: "My Logo",
