@@ -69,7 +69,7 @@ logger.info('Storing run details and attachments in SFDC objects using Unit-of-W
 
 var pdfData='';
 createPdf('x')
-  .then((data) => { console.log(data); pdfData='data:application/pdf;base64,'+data});
+  .then((data) => { console.log(data); pdfData=data});
   
 // Create a Unit nof Work to store Fucntion Log and Attachment
 const uow = context.org.dataApi.newUnitOfWork();
