@@ -169,6 +169,8 @@ const cv = {
 try {
   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
   const { id: recordId } = await context.org.dataApi.create(cv);
+  logger.info(`CV returned ${recordId}`);
+
 
 } catch (err) {
   // Catch any DML errors and pass the throw an error with the message
