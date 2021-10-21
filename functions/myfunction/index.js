@@ -162,7 +162,7 @@ const cv = {
          VersionData : pdfData,
          PathOnClient :"FunctionDoc.pdf",
          ContentLocation:"S", 
-         OwnerId: "005550000096cDTAAY"   
+         FirstPublishLocationId:pid 
   }
 };
 
