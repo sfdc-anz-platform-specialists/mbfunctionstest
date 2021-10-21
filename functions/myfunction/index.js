@@ -1,14 +1,19 @@
-import { readFileSync} from "fs";
-import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
-import PDFDocument from 'pdfkit';
-import getStream from 'get-stream';
+import { readFileSync } from "fs";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals
+} from "unique-names-generator";
+import PDFDocument from "pdfkit";
+import getStream from "get-stream";
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
 
 //image attachment
-const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
+const imageData = readFileSync("./data/logo.jpg", { encoding: "base64" });
 
 //pdf attachment
 //const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
@@ -27,16 +32,12 @@ const imageData = readFileSync('./data/logo.jpg', {encoding:'base64'});
  *                 to a given execution of a function.
  */
 export default async function (event, context, logger) {
-  
-
   const data = event.data || {};
-  
+
   logger.info(
     `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
-
-  
   // validate the payload params
   if (!data.latitude || !data.longitude) {
     throw new Error(`Please provide latitude and longitude`);
@@ -45,7 +46,7 @@ export default async function (event, context, logger) {
   // Sets 5 if length is not provided, also accepts length = 0
   const length = data.length ?? 5;
 
-const datasetsize=sampleData.schools.length;
+  const datasetsize = sampleData.schools.length;
 
   // Iterate through the schools in the file and calculate the distance using the distance function below
   const schools = sampleData.schools
@@ -65,110 +66,108 @@ const datasetsize=sampleData.schools.length;
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
 
-logger.info('Storing run details and attachments in SFDC objects using Unit-of-Work');
+  logger.info(
+    "Storing run details and attachments in SFDC objects using Unit-of-Work"
+  );
 
+  //just for fun generate a random string
+  let randomName = uniqueNamesGenerator({
+    dictionaries: [adjectives, colors, animals]
+  }); // big_red_donkey
 
-//just for fun generate a random string
-let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] }); // big_red_donkey
+  //generate a PDF
+  var pdfData = "";
+  createPdf(
+    `You succesfully executed a Salesforce function at ${Date.now()}. Your randomly generated run name is ${randomName}.`
+  ).then((data) => {  
+    pdfData = data;
+  });
 
-//generate a PDF
-var pdfData='';
+  /*****  Start UOW *****/
 
-createPdf(`You succesfully executed a Salesforce function at ${Date.now()}. Your randomly generated run name is ${randomName}.`)
-  .then((data) => { console.log(data); pdfData=data});
+  // Create a Unit nof Work to store Fucntion Log and Attachment
+  const uow = context.org.dataApi.newUnitOfWork();
 
+  const functionRunlogId = uow.registerCreate({
+    type: "FunctionRunLog__c",
+    fields: {
+      LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
+      LogDateTime__c: `${Date.now()}`
+    }
+  });
 
-/*****  Start UOW *****/
-
-// Create a Unit nof Work to store Fucntion Log and Attachment
-const uow = context.org.dataApi.newUnitOfWork();
-
-const functionRunlogId = uow.registerCreate({
-  type: "FunctionRunLog__c",
-  fields: { 
-    LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
-    LogDateTime__c:`${Date.now()}`    
-  }
-});
-
-
-var frlid;
+  var frlid; // a var to store the functionrunlogid
 
   // Commit the Unit of Work with all the previous registered operations
   try {
-  const response = await context.org.dataApi.commitUnitOfWork(uow);
-  frlid=response.get(functionRunlogId).id;
-  // Construct the result by getting the Id from the successful inserts
-  const result = {
-    functionRunLogId: response.get(functionRunlogId).id,
-    //attachmentId: response.get(attachmentId).id
+    const response = await context.org.dataApi.commitUnitOfWork(uow);
+    frlid = response.get(functionRunlogId).id;
+    // Construct the result by getting the Id from the successful inserts
+    const result = {
+      functionRunLogId: response.get(functionRunlogId).id
+      //attachmentId: response.get(attachmentId).id
+    };
+    logger.info(`UOW returned result: ${JSON.stringify(result)}`);
+  } catch (err) {
+    const errorMessage = `Failed to insert record. Root Cause : ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  /*****  END UOW *****/
+
+  /**** START ADDING ATTACHMENTS ******/
+
+  // Image
+  logger.info("Storing Image to Content Version ");
+  const img = {
+    type: "ContentVersion",
+    fields: {
+      VersionData: imageData,
+      Title: "My Logo",
+      PathOnClient: "logo.jpg",
+      ContentLocation: "S",
+      FirstPublishLocationId: frlid
+    }
   };
-  logger.info(
-    `UOW returned result: ${JSON.stringify(result)}`
-  );
-} catch (err) {
-  const errorMessage = `Failed to insert record. Root Cause : ${err.message}`;
-  logger.error(errorMessage);
-  throw new Error(errorMessage);
-}
 
-/*****  END UOW *****/
-
-
-/**** START ADDING ATTACHMENTS ******/
-
-// Image 
-logger.info('Storing Image to Content Version ');
-const img = {
-  type: "ContentVersion",
-  fields: { 
-    VersionData : imageData,
-    Title: "My Logo",
-    PathOnClient :"logo.jpg",
-    ContentLocation:"S", 
-    FirstPublishLocationId:frlid        
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(img);
+    logger.info(`CV returned ${recordId}`);
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
   }
-};
 
-try {
-  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-  const { id: recordId } = await context.org.dataApi.create(img);
-  logger.info(`CV returned ${recordId}`);
-} catch (err) {
-  // Catch any DML errors and pass the throw an error with the message
-  const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
-  logger.error(errorMessage);
-  throw new Error(errorMessage);
-}
+  // PDF
+  logger.info("Storing PDF to Content Version ");
+  const cv = {
+    type: "ContentVersion",
+    fields: {
+      VersionData: pdfData,
+      Title: `${randomName}`,
+      PathOnClient: "Function_Generated.pdf",
+      ContentLocation: "S",
+      FirstPublishLocationId: frlid
+    }
+  };
 
-// PDF
-logger.info('Storing PDF to Content Version ');
-const cv = {
-  type: "ContentVersion",
-  fields: {
-         VersionData : pdfData,
-         Title: `${randomName}`,
-         PathOnClient :"Function_Generated.pdf",
-         ContentLocation:"S", 
-         FirstPublishLocationId:frlid 
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(cv);
+    logger.info(`CV returned ${recordId}`);
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
   }
-};
+  /***** end ADDING ATTACHMENTS ******/
 
-try {
-  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-  const { id: recordId } = await context.org.dataApi.create(cv);
-  logger.info(`CV returned ${recordId}`);
-} catch (err) {
-  // Catch any DML errors and pass the throw an error with the message
-  const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
-  logger.error(errorMessage);
-  throw new Error(errorMessage);
-}
-/***** end ADDING ATTACHMENTS ******/
- 
-
-  
-return { schools: results };
+  return { schools: results };
 }
 
 /**
@@ -197,41 +196,31 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
     }
     dist = Math.acos(dist);
     dist = (dist * 180) / Math.PI;
-    dist = dist * 60 * 1.1515 * 1.609344 ;
+    dist = dist * 60 * 1.1515 * 1.609344;
     return dist;
   }
 }
 
+async function createPdf(text) {
+  const doc = new PDFDocument();
 
-   async function createPdf(text){
-    
-    const doc = new PDFDocument;
-    
   doc
-  .fontSize(20)
-  .text('Salesforce functions built some some vector graphics...', 100, 100);
-  doc
-  .save()
-  .moveTo(100, 150)
-  .lineTo(100, 250)
-  .lineTo(200, 250)
-  .fill('#FF3300');
-doc.fontSize(14).text(text, 50, 50);
-const lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam in suscipit purus.  Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus nec hendrerit felis. Morbi aliquam facilisis risus eu lacinia. Sed eu leo in turpis fringilla hendrerit. Ut nec accumsan nisl.';
-doc.addPage();
-doc.fontSize(12);
-doc.text(`This text is left aligned. ${lorem} ${lorem} ${lorem}`, {
-  width: 410,
-  align: 'left'
+    .fontSize(20)
+    .text("Salesforce functions built some some vector graphics...", 100, 100);
+  doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#FF3300");
+  doc.fontSize(14).text(text, 50, 50);
+  const lorem =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam in suscipit purus.  Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus nec hendrerit felis. Morbi aliquam facilisis risus eu lacinia. Sed eu leo in turpis fringilla hendrerit. Ut nec accumsan nisl.";
+  doc.addPage();
+  doc.fontSize(12);
+  doc.text(`This text is left aligned. ${lorem} ${lorem} ${lorem}`, {
+    width: 410,
+    align: "left"
+  });
+  doc.end();
+
+  const data = await getStream.buffer(doc);
+  let b64 = Buffer.from(data).toString("base64");
+
+  return b64;
 }
-);
-
-
-    doc.end();
-
-    const data = await getStream.buffer(doc);
-    let b64 = Buffer.from(data).toString('base64');
-
-    return b64;
-  }
-
