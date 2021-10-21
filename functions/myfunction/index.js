@@ -208,7 +208,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
     const doc = new PDFDocument;
     
   doc
-  .fontSize(25)
+  .fontSize(20)
   .text('Salesforce functions built some some vector graphics...', 100, 100);
   doc
   .save()
