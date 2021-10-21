@@ -122,10 +122,11 @@ logger.info('Storing Image to Content Version ');
 const img = {
   type: "Attachment",
   fields: { 
-    ParentId:frlid,
-    ContentType: "image/jpeg",
-    Name:"logo.jpg",
-    Body:imageData       
+    VersionData : imageData,
+    Title: "My Logo",
+    PathOnClient :"logo.jpg",
+    ContentLocation:"S", 
+    FirstPublishLocationId:frlid        
   }
 };
 
