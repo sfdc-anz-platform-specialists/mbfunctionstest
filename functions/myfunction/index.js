@@ -106,18 +106,18 @@ const attachmentId = uow.registerCreate({
 //   }
 // });
 
-// const cvId = uow.registerCreate({
-//   type: "ContentVersion",
-//   fields: { 
-//     Title:"FunctionDoc",
-//     VersionData : pdfData,
-//     PathOnClient :"FunctionDoc.pdf",
-//     ContentLocation:"S",
-//     OwnerId: "005550000096cDTAAY"
+const cvId = uow.registerCreate({
+  type: "ContentVersion",
+  fields: { 
+    Title:"FunctionDoc",
+    VersionData : pdfData,
+    PathOnClient :"FunctionDoc.pdf",
+    ContentLocation:"S",
+    FirstPublishLocationId:functionRunlogId
     
       
-//   }
-// });
+  }
+});
 
 // const clId = uow.registerCreate({
 //   type: "ContentLink",
@@ -137,8 +137,8 @@ var pid;
   // Construct the result by getting the Id from the successful inserts
   const result = {
     functionRunLogId: response.get(functionRunlogId).id,
-    attachmentId: response.get(attachmentId).id
-    //cvId:response.get(cvId).id,
+    attachmentId: response.get(attachmentId).id,
+    cvId:response.get(cvId).id,
     //clId:response.get(clId).id
 
     
@@ -152,33 +152,33 @@ var pid;
   throw new Error(errorMessage);
 }
  
-logger.info('Storing Content Version ');
+// logger.info('Storing Content Version ');
 
 
-const cv = {
-  type: "ContentVersion",
-  fields: {
-    Title:"FunctionDoc",
-         VersionData : pdfData,
-         PathOnClient :"FunctionDoc.pdf",
-         ContentLocation:"S", 
-         FirstPublishLocationId:pid 
-  }
-};
+// const cv = {
+//   type: "ContentVersion",
+//   fields: {
+//     Title:"FunctionDoc",
+//          VersionData : pdfData,
+//          PathOnClient :"FunctionDoc.pdf",
+//          ContentLocation:"S", 
+//          FirstPublishLocationId:pid 
+//   }
+// };
 
 
-try {
-  // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
-  const { id: recordId } = await context.org.dataApi.create(cv);
-  logger.info(`CV returned ${recordId}`);
+// try {
+//   // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+//   const { id: recordId } = await context.org.dataApi.create(cv);
+//   logger.info(`CV returned ${recordId}`);
 
 
-} catch (err) {
-  // Catch any DML errors and pass the throw an error with the message
-  const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
-  logger.error(errorMessage);
-  throw new Error(errorMessage);
-}
+// } catch (err) {
+//   // Catch any DML errors and pass the throw an error with the message
+//   const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+//   logger.error(errorMessage);
+//   throw new Error(errorMessage);
+// }
 
 
 
