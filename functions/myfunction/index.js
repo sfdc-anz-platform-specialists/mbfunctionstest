@@ -74,7 +74,7 @@ let randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, anima
 //generate a PDF
 var pdfData='';
 
-createPdf(randomName)
+createPdf(`You succesfully executed a Salesforce function at ${Date.now()}. Your randomly generated run name is ${randomName}.`)
   .then((data) => { console.log(data); pdfData=data});
   
 // Create a Unit nof Work to store Fucntion Log and Attachment
