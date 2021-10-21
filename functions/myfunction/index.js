@@ -218,9 +218,9 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
   .fill('#FF3300');
 doc.fontSize(12).text(text, 50, 50);
 const lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam in suscipit purus.  Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus nec hendrerit felis. Morbi aliquam facilisis risus eu lacinia. Sed eu leo in turpis fringilla hendrerit. Ut nec accumsan nisl.';
-
+doc.addPage();
 doc.fontSize(12);
-doc.text(`This text is left aligned. ${lorem}`, {
+doc.text(`This text is left aligned. ${lorem} ${lorem} ${lorem}`, {
   width: 410,
   align: 'left'
 }
