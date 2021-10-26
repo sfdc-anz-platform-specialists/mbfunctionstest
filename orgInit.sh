@@ -15,12 +15,13 @@ sfdx force:source:push
 #assign permsets
 sfdx force:user:permset:assign -n Functions
 
-
-#8. open the org
+#open the org
 sfdx force:org:open
 
+#create a comoute environment
 sf env create compute -o MBFunctionsScratchOrg -a MBFunctionsComputeEnv
 
+#deploy the functions
 sf deploy functions -o MBFunctionsScratchOrg
 
 
