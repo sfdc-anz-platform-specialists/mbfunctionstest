@@ -22,13 +22,7 @@ sfdx force:org:open
 sf env create compute -o MBFunctionsScratchOrg -a MBFunctionsComputeEnv
 
 #deploy the functions
+git add .
+git commit -m "function deployment"
 sf deploy functions -o MBFunctionsScratchOrg
-
-
-
-
-
-
-
-
 
