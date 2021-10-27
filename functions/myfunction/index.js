@@ -78,7 +78,7 @@ export default async function (event, context, logger) {
   //generate a PDF
   var pdfData = "";
   createPdf(
-    `You succesfully executed a Salesforce function at ${Date.now().toISOString()}. Your randomly generated run name is ${randomName}.`
+    `You succesfully executed a Salesforce function at ${Date.now()}. Your randomly generated run name is ${randomName}.`
   ).then((data) => {  
     pdfData = data;
   });
