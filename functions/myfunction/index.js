@@ -91,7 +91,7 @@ export default async function (event, context, logger) {
   const functionRunlogId = uow.registerCreate({
     type: "FunctionRunLog__c",
     fields: {
-      LogText__c: `Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
+      LogText__c: `My Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
       LogDateTime__c: `${Date.now()}`
     }
   });
