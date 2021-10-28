@@ -5,7 +5,7 @@ import {
   colors,
   animals
 } from "unique-names-generator";
-import PDFDocument from "pdfkit";
+import pdfkit from "pdfkit";
 import getStream from "get-stream";
 
 const sampleData = JSON.parse(
@@ -202,7 +202,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
 }
 
 async function createPdf(text) {
-  const doc = new PDFDocument();
+  const doc = new pdfkit();
 
   doc
     .fontSize(20)
