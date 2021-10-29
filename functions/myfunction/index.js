@@ -8,6 +8,9 @@ import {
 import PDFDocument from "pdfkit";
 import getStream from "get-stream";
 
+
+
+
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
@@ -208,7 +211,7 @@ const doc=new PDFDocument();
   doc
     .fontSize(20)
     .text("I used a Salesforce function to build some some vector graphics...", 100, 100);
-  doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#00FF00");
+  doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#FF3300");
   doc.fontSize(14).text(text, 50, 50);
   const lorem =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam in suscipit purus.  Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus nec hendrerit felis. Morbi aliquam facilisis risus eu lacinia. Sed eu leo in turpis fringilla hendrerit. Ut nec accumsan nisl.";
