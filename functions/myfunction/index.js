@@ -5,9 +5,8 @@ import {
   colors,
   animals
 } from "unique-names-generator";
-//import pdfkit from "pdfkit";
+import PDFDocument from "pdfkit";
 import getStream from "get-stream";
-import PDFDocumentWithTables from "pdfkit-table";
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
@@ -205,7 +204,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
 
 async function createPdf(text) {
   //const doc = new pdfkit();
-const doc=new PDFDocumentWithTables();
+const doc=new PDFDocument();
   doc
     .fontSize(20)
     .text("Salesforce functions built some some vector graphics...", 100, 100);
