@@ -7,7 +7,7 @@ import {
 } from "unique-names-generator";
 //import pdfkit from "pdfkit";
 import getStream from "get-stream";
-import PDFDocument from "pdfkit-table";
+import PDFDocumentWithTables from "pdfkit-table";
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
@@ -205,11 +205,11 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
 
 async function createPdf(text) {
   //const doc = new pdfkit();
-const doc=new PDFDocument;
+const doc=new PDFDocumentWithTables();
   doc
     .fontSize(20)
     .text("Salesforce functions built some some vector graphics...", 100, 100);
-  doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#00FF00");
+  doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#0000");
   doc.fontSize(14).text(text, 50, 50);
   const lorem =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam in suscipit purus.  Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus nec hendrerit felis. Morbi aliquam facilisis risus eu lacinia. Sed eu leo in turpis fringilla hendrerit. Ut nec accumsan nisl.";
