@@ -10,6 +10,8 @@ import getStream from "get-stream";
 
 import ObjectsToCsv from "objects-to-csv";
 
+import AdmZip from "adm-zip";
+
 const data = [
   { code: "CA", name: "California" },
   { code: "TX", name: "Texas" },
@@ -181,6 +183,32 @@ export default async function (event, context, logger) {
     throw new Error(errorMessage);
   }
 
+  logger.info("Storing ZIP file to Content Version ");
+
+  const zipfile = readFileSync("./data/test.zip", { encoding: "base64" });
+
+  const zip = {
+    type: "ContentVersion",
+    fields: {
+      VersionData: zipfile,
+      Title: "Zip file",
+      PathOnClient: "test.zip",
+      ContentLocation: "S",
+      FirstPublishLocationId: frlid
+    }
+  };
+
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(zip);
+    logger.info(`CV returned ${recordId}`);
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   // PDF
   logger.info("Storing PDF to Content Version ");
   const cv = {
@@ -274,4 +302,11 @@ async function createCSV(logger) {
   // Save to file:
   await csv.toDisk("./data/test.csv");
   logger.info(await csv.toString());
+
+  // add file directly
+  const zip = new AdmZip();
+  await zip.addLocalFile("./data/test.csv");
+
+  // or write everything to disk
+  await zip.writeZip("./data/text.zip");
 }
