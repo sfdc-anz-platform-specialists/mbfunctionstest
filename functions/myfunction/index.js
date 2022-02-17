@@ -156,7 +156,7 @@ export default async function (event, context, logger) {
     type: "ContentVersion",
     fields: {
       VersionData: imageData,
-      Title: "My Logo",
+      Title: "logo.png",
       PathOnClient: "logo.jpg",
       ContentLocation: "S",
       FirstPublishLocationId: frlid
