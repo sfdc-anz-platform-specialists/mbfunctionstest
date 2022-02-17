@@ -53,12 +53,9 @@ export default async function (event, context, logger) {
   );
   logger.info(JSON.stringify(qryresults));
 
-  let queryarray = [];
-  queryarray.push({ Name: "Fred", Mobile: "1234" });
-  queryarray.push({ Name: "Mary", Mobile: "9999" });
+  let queryarray = [{ Name: "Fred", Mobile: "1234" }];
 
   const querycsv = new ObjectsToCsv(queryarray);
-
   querycsv.toDisk("./data/test.csv");
 
   const queryzip = new AdmZip();
