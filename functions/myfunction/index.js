@@ -54,8 +54,8 @@ export default async function (event, context, logger) {
   logger.info(JSON.stringify(qryresults));
 
   let queryarray = [];
-  queryarray.push({ 1234: "Fred" });
-  queryarray.push({ 9999: "Mary" });
+  queryarray.push({ Name: "Fred", Mobile: "1234" });
+  queryarray.push({ Name: "Mary", Mobile: "9999" });
 
   const querycsv = new ObjectsToCsv(queryarray);
 
