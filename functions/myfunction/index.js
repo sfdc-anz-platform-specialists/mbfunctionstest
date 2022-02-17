@@ -46,9 +46,9 @@ export default async function (event, context, logger) {
     `SELECT Id, Name FROM Account`
   );
 
-  parse out the salesforce id, name fields into an array ready for csv processing
+  //parse out the salesforce id, name fields into an array ready for csv processing
   const qryobj = qryresults.records.map((rec) => {
-    return { "Id": rec.fields.id, "Name": rec.fields.name };
+    return { Id: rec.fields.id, Name: rec.fields.name };
   });
 
   // const qryobj = [
