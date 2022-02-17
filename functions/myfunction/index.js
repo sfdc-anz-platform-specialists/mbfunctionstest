@@ -8,8 +8,13 @@ import {
 import PDFDocument from "pdfkit";
 import getStream from "get-stream";
 
+const ObjectsToCsv = require("objects-to-csv");
 
-
+const data = [
+  { code: "CA", name: "California" },
+  { code: "TX", name: "Texas" },
+  { code: "NY", name: "New York" }
+];
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
@@ -80,12 +85,15 @@ export default async function (event, context, logger) {
 
   //generate a PDF
   var pdfData = "";
-  let timestamp=new Date().toString();
+  let timestamp = new Date().toString();
   createPdf(
     `You succesfully executed a Salesforce function at ${timestamp}. Your randomly generated run name is ${randomName}.`
-  ).then((data) => {  
+  ).then((data) => {
     pdfData = data;
   });
+
+  console.log("calling createCSV");
+  createCSV();
 
   /*****  Start UOW *****/
 
@@ -207,10 +215,14 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
 
 async function createPdf(text) {
   //const doc = new pdfkit();
-const doc=new PDFDocument();
+  const doc = new PDFDocument();
   doc
     .fontSize(20)
-    .text("I used a Salesforce function to build some some vector graphics...", 100, 100);
+    .text(
+      "I used a Salesforce function to build some some vector graphics...",
+      100,
+      100
+    );
   doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#FF3300");
   doc.fontSize(14).text(text, 50, 50);
   const lorem =
@@ -227,4 +239,14 @@ const doc=new PDFDocument();
   let b64 = Buffer.from(data).toString("base64");
 
   return b64;
+}
+
+async function createCSV() {
+  const csv = new ObjectsToCsv(data);
+
+  // Save to file:
+  await csv.toDisk("./data/test.csv");
+
+  // Return the CSV file as string:
+  console.log(await csv.toString());
 }
