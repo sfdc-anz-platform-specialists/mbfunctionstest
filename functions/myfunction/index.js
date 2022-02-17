@@ -233,7 +233,7 @@ export default async function (event, context, logger) {
     type: "ContentVersion",
     fields: {
       VersionData: pdfData,
-      Title: `${randomName}`,
+      Title: `${randomName}` + ".pdf",
       PathOnClient: "Function_Generated.pdf",
       ContentLocation: "S",
       FirstPublishLocationId: frlid
