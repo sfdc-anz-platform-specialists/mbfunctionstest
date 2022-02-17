@@ -12,11 +12,11 @@ import ObjectsToCsv from "objects-to-csv";
 
 import AdmZip from "adm-zip";
 
-const data = [
-  { code: "CA", name: "California" },
-  { code: "TX", name: "Texas" },
-  { code: "NY", name: "New York" }
-];
+// const data = [
+//   { code: "CA", name: "California" },
+//   { code: "TX", name: "Texas" },
+//   { code: "NY", name: "New York" }
+// ];
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
@@ -48,20 +48,20 @@ export default async function (event, context, logger) {
     `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
-  const results = await context.org.dataApi.query(
+  const qryresults = await context.org.dataApi.query(
     `SELECT Id, Name FROM Account`
   );
-  logger.info(JSON.stringify(results));
+  logger.info(JSON.stringify(qryresults));
 
-  const csv = new ObjectsToCsv(results);
+  const querycsv = new ObjectsToCsv(qryresults);
 
-  csv.toDisk("./data/test.csv");
+  querycsv.toDisk("./data/test.csv");
 
-  const zip = new AdmZip();
+  const queryzip = new AdmZip();
 
-  zip.addLocalFile("./data/test.csv");
+  queryzip.addLocalFile("./data/test.csv");
 
-  zip.writeZip("./data/test.zip");
+  queryzip.writeZip("./data/test.zip");
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
@@ -306,19 +306,4 @@ async function createPdf(text) {
   let b64 = Buffer.from(data).toString("base64");
 
   return b64;
-}
-
-async function createCSV(logger) {
-  const csv = new ObjectsToCsv(data);
-
-  // Save to file:
-  await csv.toDisk("./data/test.csv");
-  logger.info(await csv.toString());
-
-  // add file directly
-  const zip = new AdmZip();
-  await zip.addLocalFile("./data/test.csv");
-
-  // or write everything to disk
-  await zip.writeZip("./data/test.zip");
 }
