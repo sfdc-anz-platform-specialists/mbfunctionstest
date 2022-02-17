@@ -157,7 +157,7 @@ export default async function (event, context, logger) {
   // CSV
   logger.info("Storing CSV file to Content Version ");
 
-  const csvfile = readFileSync("./data/test.csv");
+  const csvfile = readFileSync("./data/test.csv", { encoding: "base64" });
 
   const csv = {
     type: "ContentVersion",
