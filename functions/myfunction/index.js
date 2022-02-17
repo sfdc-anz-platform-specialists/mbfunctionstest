@@ -51,11 +51,15 @@ export default async function (event, context, logger) {
   const qryresults = await context.org.dataApi.query(
     `SELECT Id, Name FROM Account`
   );
-  logger.info(JSON.stringify(qryresults));
 
-  let queryarray = [{ Name: "Fred", Mobile: "1234" }];
+  const qryobj = qryresults.records.map((rec) => {
+    return { Id: rec.fields.id, Name: rec.fields.name };
+  });
 
-  const querycsv = new ObjectsToCsv(queryarray);
+  logger.info(JSON.stringify(qryobj));
+
+  const querycsv = new ObjectsToCsv(qryobj);
+
   querycsv.toDisk("./data/test.csv");
 
   const queryzip = new AdmZip();
