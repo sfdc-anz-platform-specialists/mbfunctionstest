@@ -154,6 +154,33 @@ export default async function (event, context, logger) {
     throw new Error(errorMessage);
   }
 
+  // CSV
+  logger.info("Storing CSV file to Content Version ");
+
+  const csvfile = readFileSync("./data/test.csv");
+
+  const csv = {
+    type: "ContentVersion",
+    fields: {
+      VersionData: csvfile,
+      Title: "CSV file",
+      PathOnClient: "test.csv",
+      ContentLocation: "S",
+      FirstPublishLocationId: frlid
+    }
+  };
+
+  try {
+    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    const { id: recordId } = await context.org.dataApi.create(csv);
+    logger.info(`CV returned ${recordId}`);
+  } catch (err) {
+    // Catch any DML errors and pass the throw an error with the message
+    const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   // PDF
   logger.info("Storing PDF to Content Version ");
   const cv = {
