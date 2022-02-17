@@ -308,5 +308,5 @@ async function createCSV(logger) {
   await zip.addLocalFile("./data/test.csv");
 
   // or write everything to disk
-  await zip.writeZip("./data/text.zip");
+  await zip.writeZip("./data/test.zip");
 }
