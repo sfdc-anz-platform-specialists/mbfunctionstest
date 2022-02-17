@@ -183,7 +183,7 @@ export default async function (event, context, logger) {
     type: "ContentVersion",
     fields: {
       VersionData: csvfile,
-      Title: "CSV file",
+      Title: "test.csv",
       PathOnClient: "test.csv",
       ContentLocation: "S",
       FirstPublishLocationId: frlid
