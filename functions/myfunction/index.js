@@ -7,20 +7,15 @@ import {
 } from "unique-names-generator";
 import PDFDocument from "pdfkit";
 import getStream from "get-stream";
-
 import ObjectsToCsv from "objects-to-csv";
-
 import AdmZip from "adm-zip";
 
 const sampleData = JSON.parse(
   readFileSync(new URL("./data/sample-data.json", import.meta.url))
 );
 
-//image attachment
+//image attachment, use a logo in a known place - base64 is needed for ContentVersion in Salesforce
 const imageData = readFileSync("./data/logo.jpg", { encoding: "base64" });
-
-//pdf attachment
-//const pdfData = readFileSync('./data/Datasheet.pdf', {encoding:'base64'});
 
 /**
  * From a large JSON payload calculates the distance between a supplied
@@ -35,39 +30,13 @@ const imageData = readFileSync("./data/logo.jpg", { encoding: "base64" });
  * @param logger: logging handler used to capture application logs and trace specifically
  *                 to a given execution of a function.
  */
+
 export default async function (event, context, logger) {
   const data = event.data || {};
 
   logger.info(
     `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
-
-  const qryresults = await context.org.dataApi.query(
-    `SELECT Id, Name FROM Account`
-  );
-
-  //parse out the salesforce id, name fields into an array ready for csv processing
-  const qryobj = qryresults.records.map((rec) => {
-    return { Id: rec.fields.id, Name: rec.fields.name };
-  });
-
-  // const qryobj = [
-  //   { code: "CA", name: "California" },
-  //   { code: "TX", name: "Texas" },
-  //   { code: "NY", name: "New York" }
-  // ];
-
-  logger.info(JSON.stringify(qryobj));
-
-  const querycsv = new ObjectsToCsv(qryobj);
-
-  await querycsv.toDisk("./data/test.csv");
-
-  const queryzip = new AdmZip();
-
-  await queryzip.addLocalFile("./data/test.csv");
-
-  await queryzip.writeZip("./data/test.zip");
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
@@ -97,16 +66,38 @@ export default async function (event, context, logger) {
   // Assign the nearest x schools to the results constant based on the length property provided in the payload
   const results = schools.slice(0, length);
 
-  logger.info(
-    "Storing run details and attachments in SFDC objects using Unit-of-Work"
+  /**** Prepare CSV and ZIP  ****/
+
+  // A simple query to populate our CSV attachment
+  logger.info(`Querying Salesforce: select id,name from Account`);
+  const qryresults = await context.org.dataApi.query(
+    `SELECT Id, Name FROM Account`
   );
 
-  //just for fun generate a random string
+  //parse out the salesforce id, name fields into an array ready for csv processing
+  const qryobj = qryresults.records.map((rec) => {
+    return { Id: rec.fields.id, Name: rec.fields.name };
+  });
+
+  // use an open source library to generate CSV from the query
+  const querycsv = new ObjectsToCsv(qryobj);
+
+  //write the CSV to disk
+  await querycsv.toDisk("./data/test.csv");
+
+  // we might as well Zip the CSV while we are here - again use an open source library
+  const queryzip = new AdmZip();
+  await queryzip.addLocalFile("./data/test.csv");
+  await queryzip.writeZip("./data/test.zip");
+
+  /**** Prepare PDF ****/
+
+  //just for fun generate a random string for the file name
   let randomName = uniqueNamesGenerator({
     dictionaries: [adjectives, colors, animals]
   }); // big_red_donkey
 
-  //generate a PDF
+  //now call a local function to generate a PDF - it will be in Base64 format
   var pdfData = "";
   let timestamp = new Date().toString();
   createPdf(
@@ -115,11 +106,13 @@ export default async function (event, context, logger) {
     pdfData = data;
   });
 
-  /*****  Start UOW *****/
+  /**  UOW - Write results to Salesforce - Use a Unit of Work **/
+  logger.info(`Commencing UOW process`);
 
-  // Create a Unit nof Work to store Fucntion Log and Attachment
+  /* Create a Unit of Work to store Function Log and Attachment */
   const uow = context.org.dataApi.newUnitOfWork();
 
+  /*create a custom object FunctionRunLog__c */
   const functionRunlogId = uow.registerCreate({
     type: "FunctionRunLog__c",
     fields: {
@@ -130,7 +123,7 @@ export default async function (event, context, logger) {
 
   var frlid; // a var to store the functionrunlogid
 
-  // Commit the Unit of Work with all the previous registered operations
+  /* Commit the Unit of Work with all the previous registered operations */
   try {
     const response = await context.org.dataApi.commitUnitOfWork(uow);
     frlid = response.get(functionRunlogId).id;
@@ -145,12 +138,11 @@ export default async function (event, context, logger) {
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }
+  /**  END UOW **/
 
-  /*****  END UOW *****/
+  /** ADD png, csv, zip and pdf ATTACHMENTS TO THE FunctionRunLog__c record created above **/
 
-  /**** START ADDING ATTACHMENTS ******/
-
-  // Image
+  /* Image */
   logger.info("Storing Image to Content Version ");
   const img = {
     type: "ContentVersion",
@@ -159,26 +151,24 @@ export default async function (event, context, logger) {
       Title: "logo.png",
       PathOnClient: "logo.jpg",
       ContentLocation: "S",
-      FirstPublishLocationId: frlid
+      FirstPublishLocationId: frlid // FunctionRunLog__c record id
     }
   };
 
   try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    /*Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result */
     const { id: recordId } = await context.org.dataApi.create(img);
     logger.info(`CV returned ${recordId}`);
   } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
+    /* Catch any DML errors and pass the throw an error with the message */
     const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 
-  // CSV
+  /* CSV */
   logger.info("Storing CSV file to Content Version ");
-
   const csvfile = readFileSync("./data/test.csv", { encoding: "base64" });
-
   const csv = {
     type: "ContentVersion",
     fields: {
@@ -186,25 +176,24 @@ export default async function (event, context, logger) {
       Title: "test.csv",
       PathOnClient: "test.csv",
       ContentLocation: "S",
-      FirstPublishLocationId: frlid
+      FirstPublishLocationId: frlid // FunctionRunLog__c record id
     }
   };
 
   try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    /* Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result */
     const { id: recordId } = await context.org.dataApi.create(csv);
     logger.info(`CV returned ${recordId}`);
   } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
+    /* Catch any DML errors and pass the throw an error with the message  */
     const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 
+  /* Zip */
   logger.info("Storing ZIP file to Content Version ");
-
   const zipfile = readFileSync("./data/test.zip", { encoding: "base64" });
-
   const zip = {
     type: "ContentVersion",
     fields: {
@@ -212,22 +201,22 @@ export default async function (event, context, logger) {
       Title: "test.zip",
       PathOnClient: "test.zip",
       ContentLocation: "S",
-      FirstPublishLocationId: frlid
+      FirstPublishLocationId: frlid // FunctionRunLog__c record id
     }
   };
 
   try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    /* Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result */
     const { id: recordId } = await context.org.dataApi.create(zip);
     logger.info(`CV returned ${recordId}`);
   } catch (err) {
-    // Catch any DML errors and pass the throw an error with the message
+    /* Catch any DML errors and pass the throw an error with the message */
     const errorMessage = `Failed to insert CV record. Root Cause: ${err.message}`;
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 
-  // PDF
+  /* PDF */
   logger.info("Storing PDF to Content Version ");
   const cv = {
     type: "ContentVersion",
@@ -236,12 +225,12 @@ export default async function (event, context, logger) {
       Title: `${randomName}` + ".pdf",
       PathOnClient: "Function_Generated.pdf",
       ContentLocation: "S",
-      FirstPublishLocationId: frlid
+      FirstPublishLocationId: frlid // FunctionRunLog__c record id
     }
   };
 
   try {
-    // Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result
+    /* Insert the record using the SalesforceSDK DataApi and get the new Record Id from the result */
     const { id: recordId } = await context.org.dataApi.create(cv);
     logger.info(`CV returned ${recordId}`);
   } catch (err) {
@@ -250,7 +239,7 @@ export default async function (event, context, logger) {
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }
-  /***** end ADDING ATTACHMENTS ******/
+  /** end ADDING ATTACHMENTS */
 
   return { schools: results };
 }
@@ -286,8 +275,13 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
   }
 }
 
+/**
+ * asynch function to create a PDF
+ *
+ * @param {string} text:  text to be included in the PDF
+ * @returns {Buffer} base64 version of the PDF document
+ */
 async function createPdf(text) {
-  //const doc = new pdfkit();
   const doc = new PDFDocument();
   doc
     .fontSize(20)
@@ -310,6 +304,5 @@ async function createPdf(text) {
 
   const data = await getStream.buffer(doc);
   let b64 = Buffer.from(data).toString("base64");
-
   return b64;
 }
