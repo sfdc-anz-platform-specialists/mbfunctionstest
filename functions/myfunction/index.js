@@ -48,6 +48,21 @@ export default async function (event, context, logger) {
     `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
   );
 
+  const results = await context.org.dataApi.query(
+    `SELECT Id, Name FROM Account`
+  );
+  logger.info(JSON.stringify(results));
+
+  const csv = new ObjectsToCsv(results);
+
+  await csv.toDisk("./data/test.csv");
+
+  const zip = new AdmZip();
+
+  await zip.addLocalFile("./data/test.csv");
+
+  await zip.writeZip("./data/test.zip");
+
   // validate the payload params
   if (!data.latitude || !data.longitude) {
     throw new Error(`Please provide latitude and longitude`);
@@ -93,9 +108,6 @@ export default async function (event, context, logger) {
   ).then((data) => {
     pdfData = data;
   });
-
-  logger.info(`calling createCSV()`);
-  createCSV(logger);
 
   /*****  Start UOW *****/
 
@@ -191,7 +203,7 @@ export default async function (event, context, logger) {
     type: "ContentVersion",
     fields: {
       VersionData: zipfile,
-      Title: "Zip file",
+      Title: "test.zip",
       PathOnClient: "test.zip",
       ContentLocation: "S",
       FirstPublishLocationId: frlid
