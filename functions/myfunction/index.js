@@ -53,7 +53,12 @@ export default async function (event, context, logger) {
   );
   logger.info(JSON.stringify(qryresults));
 
-  const querycsv = new ObjectsToCsv(qryresults.records[0].fields);
+  let queryarray = [];
+  queryarray.push({ Id: "Name" });
+  queryarray.push({ 1234: "Fred" });
+  queryarray.push({ 9999: "Mary" });
+
+  const querycsv = new ObjectsToCsv(queryarray);
 
   querycsv.toDisk("./data/test.csv");
 
