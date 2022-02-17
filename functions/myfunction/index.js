@@ -54,7 +54,6 @@ export default async function (event, context, logger) {
   logger.info(JSON.stringify(qryresults));
 
   let queryarray = [];
-  queryarray.push({ Id: "Name" });
   queryarray.push({ 1234: "Fred" });
   queryarray.push({ 9999: "Mary" });
 
