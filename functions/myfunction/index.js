@@ -92,8 +92,8 @@ export default async function (event, context, logger) {
     pdfData = data;
   });
 
-  console.log("calling createCSV");
-  createCSV();
+  logger.info(`calling createCSV()`);
+  createCSV(logger);
 
   /*****  Start UOW *****/
 
@@ -241,12 +241,10 @@ async function createPdf(text) {
   return b64;
 }
 
-async function createCSV() {
+async function createCSV(logger) {
   const csv = new ObjectsToCsv(data);
 
   // Save to file:
   await csv.toDisk("./data/test.csv");
-
-  // Return the CSV file as string:
-  console.log(await csv.toString());
+  logger.info(await csv.toString());
 }
