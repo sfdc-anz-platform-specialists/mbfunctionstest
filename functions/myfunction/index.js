@@ -55,13 +55,13 @@ export default async function (event, context, logger) {
 
   const csv = new ObjectsToCsv(results);
 
-  await csv.toDisk("./data/test.csv");
+  csv.toDisk("./data/test.csv");
 
   const zip = new AdmZip();
 
-  await zip.addLocalFile("./data/test.csv");
+  zip.addLocalFile("./data/test.csv");
 
-  await zip.writeZip("./data/test.zip");
+  zip.writeZip("./data/test.zip");
 
   // validate the payload params
   if (!data.latitude || !data.longitude) {
