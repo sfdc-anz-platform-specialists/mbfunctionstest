@@ -8,7 +8,7 @@ import {
 import PDFDocument from "pdfkit";
 import getStream from "get-stream";
 
-const ObjectsToCsv = require("objects-to-csv");
+import ObjectsToCsv from "objects-to-csv";
 
 const data = [
   { code: "CA", name: "California" },
