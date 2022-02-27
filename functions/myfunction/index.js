@@ -101,7 +101,7 @@ export default async function (event, context, logger) {
   var pdfData = "";
   let timestamp = new Date().toString();
   createPdf(
-    `You succesfully executed a Salesforce function at ${timestamp}. \n\nYour randomly generated run name is ${randomName}.`
+    `You succesfully executed a Salesforce function at ${timestamp}. \n\nYour randomly generated run name is ${randomName}.\n`
   ).then((data) => {
     pdfData = data;
   });
@@ -290,7 +290,7 @@ async function createPdf(text) {
     .text(
       "I used a Salesforce function to build some some vector graphics...",
       100,
-      100
+      200
     );
   doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#FF3300");
   doc.fontSize(14).text(text, 50, 50);
