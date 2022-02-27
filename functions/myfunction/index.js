@@ -101,7 +101,7 @@ export default async function (event, context, logger) {
   var pdfData = "";
   let timestamp = new Date().toString();
   createPdf(
-    `You succesfully executed a Salesforce function at ${timestamp}. \nYour randomly generated run name is ${randomName}.`
+    `You succesfully executed a Salesforce function at ${timestamp}. \n\nYour randomly generated run name is ${randomName}.`
   ).then((data) => {
     pdfData = data;
   });
@@ -283,6 +283,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
  */
 async function createPdf(text) {
   const doc = new PDFDocument();
+  doc.moveDown();
   doc.moveDown();
   doc
     .fontSize(20)
