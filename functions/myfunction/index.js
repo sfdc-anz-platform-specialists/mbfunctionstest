@@ -283,6 +283,7 @@ function distance(latitudeSt, longitudeSt, latitudeSch, longitudeSch) {
  */
 async function createPdf(text) {
   const doc = new PDFDocument();
+  doc.moveDown();
   doc
     .fontSize(20)
     .text(
