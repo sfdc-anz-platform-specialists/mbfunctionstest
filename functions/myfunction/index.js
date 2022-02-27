@@ -101,7 +101,7 @@ export default async function (event, context, logger) {
   var pdfData = "";
   let timestamp = new Date().toString();
   createPdf(
-    `You succesfully executed a Salesforce function at ${timestamp}. Your randomly generated run name is ${randomName}.`
+    `You succesfully executed a Salesforce function at ${timestamp}. \nYour randomly generated run name is ${randomName}.`
   ).then((data) => {
     pdfData = data;
   });
