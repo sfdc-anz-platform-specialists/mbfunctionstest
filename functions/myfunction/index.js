@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
-import moment from "moment";
+//import moment from "moment";
+import moment from "moment-timezone";
 import {
   uniqueNamesGenerator,
   adjectives,
@@ -294,9 +295,9 @@ async function createPdf(text) {
   doc
     .fontSize(20)
     .text(
-      "I used a Salesforce function to build some some vector graphics...",
+      "The Salesforce function used pdfKit to build the simple vector graphic above.",
       100,
-      400
+      300
     );
   doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#FF3300");
   doc.fontSize(14).text(text, 50, 50);
