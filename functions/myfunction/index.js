@@ -123,7 +123,7 @@ export default async function (event, context, logger) {
   const functionRunlogId = uow.registerCreate({
     type: "FunctionRunLog__c",
     fields: {
-      LogText__c: `My Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records`,
+      LogText__c: `My Node.js function returned random string: [${randomName}]. Plotted ${length} closest schools from the sample dataset of ${datasetsize} records. Finally, used open source libraries to create Zip, CSV, PNG and PDF files, and via the Unit Of Work framework attach them to this record.`,
       LogDateTime__c: `${Date.now()}`
     }
   });
@@ -295,7 +295,7 @@ async function createPdf(text) {
   doc
     .fontSize(20)
     .text(
-      "The Salesforce function used pdfKit to build the simple vector graphic above.",
+      "The Salesforce Function used the open surce library 'pdfKit' to write and format all the text in this PDF document and to build the simple vector graphic above.",
       100,
       300
     );
