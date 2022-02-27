@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import moment from "moment";
 import {
   uniqueNamesGenerator,
   adjectives,
@@ -99,9 +100,14 @@ export default async function (event, context, logger) {
 
   //now call a local function to generate a PDF - it will be in Base64 format
   var pdfData = "";
-  let timestamp = new Date().toString();
+  //let timestamp = new Date().toString();
+  let time = moment.tz(
+    new Date(),
+    "Australia/Sydney"
+  ); /* timezone_string = "Australia/Sydney" */
+  let timestring = time.format("D/MM/YYYY hh:mm A");
   createPdf(
-    `You succesfully executed a Salesforce function at ${timestamp}. \n\nYour randomly generated run name is ${randomName}.\n`
+    `You succesfully executed a Salesforce function at ${timestring}. \n\nYour randomly generated run name is ${randomName}.\n`
   ).then((data) => {
     pdfData = data;
   });
