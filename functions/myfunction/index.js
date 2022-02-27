@@ -290,7 +290,7 @@ async function createPdf(text) {
     .text(
       "I used a Salesforce function to build some some vector graphics...",
       100,
-      200
+      400
     );
   doc.save().moveTo(100, 150).lineTo(100, 250).lineTo(200, 250).fill("#FF3300");
   doc.fontSize(14).text(text, 50, 50);
