@@ -295,7 +295,7 @@ async function createPdf(text) {
   doc
     .fontSize(20)
     .text(
-      "The Salesforce Function used the open surce library 'pdfKit' to write and format all the text in this PDF document and to build the simple vector graphic above.",
+      "The Salesforce Function used the open source 'pdfKit' library to write and format all the text in this PDF document and also to build the simple vector graphic above.",
       100,
       300
     );
