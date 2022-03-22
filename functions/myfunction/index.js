@@ -34,6 +34,11 @@ const imageData = readFileSync("./data/logo.jpg", { encoding: "base64" });
 
 export default async function (event, context, logger) {
   const data = event.data || {};
+  logger.info("CONTEXT LOGGING START ****");
+  logger.info(
+    `event===>${JSON.stringify(event)} context====>${JSON.stringify(context)}`
+  );
+  logger.info("CONTEXT LOGGING END ****");
 
   logger.info(
     `Invoking Mikes MyFunctions-myfunction with payload ${JSON.stringify(data)}`
