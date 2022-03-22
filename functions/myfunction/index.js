@@ -32,7 +32,7 @@ const imageData = readFileSync("./data/logo.jpg", { encoding: "base64" });
  *                 to a given execution of a function.
  */
 
-export default async function (event, context, logger) {
+export default async function execute(event, context, logger) {
   const data = event.data || {};
   logger.info("CONTEXT LOGGING START ****");
   logger.info(
